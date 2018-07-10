@@ -1,2 +1,2 @@
-# ray_tracer
+# Ray Tracer
 A basic ray tracer in c++
