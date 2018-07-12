@@ -13,6 +13,10 @@ public:
         return direction;
     }
 
+    float getDistance(glm::vec3 pos) {
+        return 999999.0f;
+    }
+
 private:
     glm::vec3 direction;
 };

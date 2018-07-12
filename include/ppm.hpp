@@ -2,9 +2,8 @@
 #define PPM_H
 
 #include <iostream>
-#include <fstream>
 #include <glm/glm.hpp>
-#include <cstdlib>
+#include <fstream>
 
 typedef unsigned char uint8;
 
@@ -37,7 +36,7 @@ public:
         pixels = new Pixel[w * h];
     }
     ~PPM(){
-        delete pixels;
+        // delete pixels;
     }
 
     void setPixel(int y, int x, uint8 r, uint8 g, uint8 b) {
@@ -48,16 +47,29 @@ public:
         pixels[y * width + x] = Pixel(v);
     }
 
-    void toFile(const char* filepath){
-        std::ofstream file;
-        file.open(filepath);
-        file << "P3\n" << width << " " << height << "\n255\n";
+    void toFile(const char* filename) {
+        std::ofstream f(filename);
+        // std::cout << "Saving to: " << filepath << std::endl;
+        f << "P3\n" << width << " " << height << "\n255\n";
         char buffer [13];
-        for(int i = 0;i < width * height;i++ ) {
+        for(int i = 0;i < width * height;i++) {
             sprintf(buffer, "%d %d %d\n", pixels[i].r, pixels[i].g, pixels[i].b);
-            file << buffer;
-            // file << pixels[i].r << " " << pixels[i].g << " " << pixels[i].b << "\n";
+            f << buffer;
         }
+        f.close();
+        // out_file.close();
+        // std::ofstream file(filepath);
+        // std::cout << "Writing Header..." << std::endl;
+        // file << "P3\n" << width << " " << height << "\n255\n";
+        // std::cout << "Size of Pixels: " << (sizeof(pixels) * sizeof(Pixel)) << std::endl;
+        // char buffer [13];
+        // for(int i = 0;i < width * height;i++ ) {
+        //     std::cout << "(" << pixels[i].r << "," << pixels[i].g << "," << pixels[i].b << ")" << std::endl;
+        //     sprintf(buffer, "%d %d %d\n", pixels[i].r, pixels[i].g, pixels[i].b);
+        //     file << buffer;
+        //     // file << pixels[i].r << " " << pixels[i].g << " " << pixels[i].b << "\n";
+        // }
+        // file.close();
     }
 private:
     Pixel* pixels;

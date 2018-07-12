@@ -10,33 +10,35 @@ public:
         radius = r;
     }
 
+    virtual ~Sphere(){
+        std::cout << "Destructing Sphere!" << std::endl;
+
+    }
+
     bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) {
-        float t0, t1;
-        glm::vec3 L = center - r0;
-        float tca = glm::dot(L, rd);
-        if(tca < 0) {
+        glm::vec3 oc = center - r0;
+        float oc_mag = glm::length(oc);
+        bool inside_sphere = oc_mag < radius;
+        float tca = glm::dot(rd, oc);
+        if(tca < 0 && !inside_sphere) {
             return false;
         }
-        float d2 = glm::dot(L, L) - tca * tca;
-        if(d2 > radius) {
+        float thcsq = radius * radius - oc_mag * oc_mag + tca * tca;
+        if(thcsq < 0) {
             return false;
         }
-        float thc = sqrt(radius - d2);
-        t0 = tca - thc;
-        t1 = tca + thc;
-        if(t0 > t1) {
-            std::swap(t0, t1);
-        }
-        if(t0 < 0) {
-            t0 = t1;
-            if(t0 < 0) {
-                return false;
-            }
-        }
-        t = t0;
+        float thc = (float)sqrt(thcsq);
+        t = (!inside_sphere)? tca - thc : tca + thc;
         glm::vec3 inter = r0 + rd * t;
         normal = (inter - center) / radius;
         return true;
+    }
+
+    glm::vec2 getUV(glm::vec3 pt) {
+        glm::vec3 n = glm::normalize(pt - center);
+        float u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
+        float v = n.y * 0.5 + 0.5;
+        return glm::vec2(u, v);
     }
 
 private:
