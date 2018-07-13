@@ -12,7 +12,6 @@ public:
         material->shape = this;
     }
     virtual ~Geometry(){
-        std::cout << "Destructing Geometry!" << std::endl;
         delete material;
     }
     virtual bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) = 0;

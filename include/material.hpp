@@ -7,7 +7,6 @@
 #include <math.h>
 #include <iostream>
 
-// class Geometry;
 class Material {
 public:
     Material(int n, float ka, float ks, float k_reflect=0.0f, float k_refract=0.0f, float i_refract=1.003) {
@@ -19,7 +18,6 @@ public:
         indexOfRefraction = i_refract;
     }
     virtual ~Material(){
-        std::cout << "Destructing Material" << std::endl;
     }
 
     float reflectiveStrength;

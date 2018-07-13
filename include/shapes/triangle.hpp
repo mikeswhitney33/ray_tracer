@@ -11,10 +11,12 @@ public:
         A = a;
         B = b;
         C = c;
+        Auv = a_uv;
+        Buv = b_uv;
+        Cuv = c_uv;
     }
 
     virtual ~Triangle() {
-        std::cout << "Destructing Triangle!" << std::endl;
     }
 
     bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) {
@@ -61,10 +63,20 @@ public:
     }
 
     glm::vec2 getUV(glm::vec3 pt) {
-        return glm::vec2(0.0f, 0.0f);
+        glm::vec3 f1 = A - pt;
+        glm::vec3 f2 = B - pt;
+        glm::vec3 f3 = C - pt;
+
+        float a = glm::length(glm::cross(A - B, A - C));
+        float a1 = glm::length(glm::cross(f2, f3)) / a;
+        float a2 = glm::length(glm::cross(f3, f1)) / a;
+        float a3 = glm::length(glm::cross(f1, f2)) / a;
+        return Auv * a1 + Buv * a2 + Cuv * a3;
+        // return glm::vec2(0.0f, 0.0f);
     }
 private:
     glm::vec3 A, B, C;
+    glm::vec2 Auv, Buv, Cuv;
 };
 
 #endif

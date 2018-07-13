@@ -7,6 +7,7 @@ public:
     Light(glm::vec3 c) {
         color = c;
     }
+    virtual ~Light(){}
     glm::vec3 getColor() {
         return color;
     }

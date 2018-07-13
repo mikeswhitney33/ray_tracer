@@ -11,7 +11,6 @@ public:
     }
 
     virtual ~Sphere(){
-        std::cout << "Destructing Sphere!" << std::endl;
 
     }
 

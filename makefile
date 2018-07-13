@@ -1,4 +1,6 @@
-CC = g++
+TARGETOS = $(shell uname -s)
+
+CC = g++ --std=c++11
 INCLUDES = -Iinclude
 C = -x c
 CPP = -x c++
@@ -9,17 +11,23 @@ MKDIR = mkdir -p
 
 MAIN_DIR = build/main
 
+OPENCVFLAGS = $(shell pkg-config --libs opencv)
+
 SRC = src/main.cpp
 DEST = build/main
 EXEC = main
 
-OPEN = xdg-open
+ifeq ($(TARGETOS), Darwin)
+	OPEN = open
+else
+	OPEN = xdg-open
+endif
 
 OUT_DIR = build/main
 OUT_FILE = out.ppm
 
 
-COMPILE = $(CC) $(INCLUDES) $(STB) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)
+COMPILE = $(CC) $(INCLUDES) $(STB) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS)
 
 main:
 	$(MKDIR) $(DEST)

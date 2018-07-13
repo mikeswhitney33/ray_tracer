@@ -11,7 +11,6 @@ public:
     }
 
     virtual ~PrimaryScene() {
-        std::cout << "Destructing Primary scene!" << std::endl;
 
     }
 private:

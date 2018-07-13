@@ -11,6 +11,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <fstream>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core/hal/interface.h>
+
 #define SMALL_NUM   ((float)pow(2, -13))
 
 
@@ -30,7 +34,6 @@ public:
     }
 
     virtual ~Scene() {
-        std::cout << "Destructing Scene!" << std::endl;
 
         delete camera;
         for(int i = 0;i < shapes.size();i++) {
@@ -50,40 +53,59 @@ public:
         lights.push_back(light);
     }
 
-    PPM* save() {
-        std::cout << "Shapes: " << shapes.size() << std::endl;
-        PPM* ppm = new PPM(width, height);
-        glm::vec3 grid[height][width];
+    void save(const char* filename) {
+        // PPM* ppm = new PPM(width, height);
+        // glm::vec3 grid[height][width];
+        unsigned int* grid = new unsigned int[height * width * 3];
         float max_val = 0;
         float min_val = 9999.0f;
-        std::cout << "Tracing..." << std::endl;
-        for(int y = 0;y < height;y++) {
+        for(int y = height - 1;y > 0;y--) {
+            if(y % 100 == 0) {
+                std::cout << y << "/" << height << std::endl;
+            }
             for(int x = 0;x < width;x++) {
                 glm::vec3 color = getColor(y, x) * 255.0f;
-                for(int i = 0;i < 3;i++) {
-                    if(color[i] > max_val) {
-                        max_val = color[i];
-                    }
-                    if(color[i] < min_val) {
-                        min_val = color[i];
-                    }
-                }
-                grid[y][x] = color;
+                int idx = (y * width + x) * 3;
+                grid[idx] = color.x;
+                grid[idx + 1] = color.y;
+                grid[idx + 2] = color.z;
+                // for(int i = 0;i < 3;i++) {
+                //     if(color[i] > max_val) {
+                //         max_val = color[i];
+                //     }
+                //     if(color[i] < min_val) {
+                //         min_val = color[i];
+                //     }
+                // }
+                // grid[y][x] = color;
             }
         }
-        std::cout << "Regularizing..." << std::endl;
 
-        if(max_val > 255) {
-            float factor = log(255) / log(max_val);
-            for(int y = 0;y < height;y++) {
-                for(int x = 0;x < width;x++){
-                    glm::vec3 color = glm::pow(grid[y][x], glm::vec3(factor, factor, factor));
-                    // (grid[y][x] - min_val)/(max_val-min_val)
-                    ppm->setPixel(height - y, width - x, (unsigned char) color.x, (unsigned char) color.y, (uint8) color.z);
-                }
-            }
+        cv::Mat img = cv::Mat(height, width, CV_32U, grid);
+        unsigned int max, min;
+        cv::minMaxLoc(img, &min, &max);
+        std::ofstream f(filename);
+        f << "P3\n" << width << " " << height << "\n" << max << "\n";
+        for(int i = 0;i < width * height * 3;i+=3) {
+            f << (int)img.data[i] << " " << (int)img.data[i+1] << " " << (int)img.data[i+2] << "\n";
         }
-        return ppm;
+        f.close();
+
+        // if(max_val > 255) {
+        //     float factor = log(255) / log(max_val);
+        //     for(int y = 0;y < height;y++) {
+        //         for(int x = 0;x < width;x++){
+        //
+        //             glm::vec3 color = glm::pow(grid[y][x], glm::vec3(factor, factor, factor));
+        //             // color.x = (grid[y][x].x > 10)? pow(grid[y][x].x, factor) : grid[y][x].x;
+        //             // color.y = (grid[y][x].y > 10)? pow(grid[y][x].y, factor) : grid[y][x].y;
+        //             // color.z = (grid[y][x].z > 10)? pow(grid[y][x].z, factor) : grid[y][x].z;
+        //             // (grid[y][x] - min_val)/(max_val-min_val)
+        //             ppm->setPixel(height - y - 1, width - x - 1, (unsigned char) color.x, (unsigned char) color.y, (uint8) color.z);
+        //         }
+        //     }
+        // }
+        // return ppm;
     }
 
 protected:

@@ -5,14 +5,12 @@
 
 class SecondaryScene : public Scene {
 public:
-    // Scene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov_x, float fov_y)
     SecondaryScene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov_x, float fov_y, int recursions, float eta)
         : Scene(bkgd, cam, w, h, fov_x, fov_y, recursions, eta) {
 
     }
 
     virtual ~SecondaryScene() {
-        std::cout << "Destructing Secondary scene!" << std::endl;
 
     }
 private:
