@@ -6,14 +6,19 @@
 #include <camera.hpp>
 #include <light.hpp>
 #include <vector>
-#include <ppm.hpp>
 #include <material.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <fstream>
+#include <ctime>
+#include <chrono>
 
+#include <opencv2/core.hpp>
 #include <opencv2/core/core.hpp>
+#include <opencv2/core/base.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/hal/interface.h>
+#include <opencv2/imgproc.hpp>
+
 
 #define SMALL_NUM   ((float)pow(2, -13))
 
@@ -22,13 +27,17 @@
 
 class Scene {
 public:
-    Scene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov_x, float fov_y, int recursions, float eta) {
+    Scene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov, int recursions, float eta) {
         backgroundColor = bkgd;
         camera = cam;
         width = w;
         height = h;
-        u_max = 2 * (float) tan(glm::radians(fov_x / 2.0f));
-        v_max = 2 * (float) tan(glm::radians(fov_y / 2.0f));
+        float fov_x, fov_y;
+        fov_x = fov;
+        fov_y = fov * ((w > h) ? (float)h / (float)w : (float) w / (float)h);
+
+        u_max = 2 * (float) tan(glm::radians(fov_y / 2.0f));
+        v_max = 2 * (float) tan(glm::radians(fov_x / 2.0f));
         max_recursions = recursions;
         initial_eta = eta;
     }
@@ -54,58 +63,29 @@ public:
     }
 
     void save(const char* filename) {
-        // PPM* ppm = new PPM(width, height);
-        // glm::vec3 grid[height][width];
-        unsigned int* grid = new unsigned int[height * width * 3];
-        float max_val = 0;
-        float min_val = 9999.0f;
-        for(int y = height - 1;y > 0;y--) {
-            if(y % 100 == 0) {
-                std::cout << y << "/" << height << std::endl;
-            }
+
+        // cv::Mat m(width, height , CV_32FC(3), cv::Scalar(0.0f, 0.0f, 0.0f));
+        cv::Mat m;
+        m.create(width, height, CV_32FC(3));
+
+        for(int y = 0;y < height;y++) {
+            std::cout << y << "/" << height << " -- " << (100 * y / height)  << "%       \r" << std::flush;
             for(int x = 0;x < width;x++) {
-                glm::vec3 color = getColor(y, x) * 255.0f;
-                int idx = (y * width + x) * 3;
-                grid[idx] = color.x;
-                grid[idx + 1] = color.y;
-                grid[idx + 2] = color.z;
-                // for(int i = 0;i < 3;i++) {
-                //     if(color[i] > max_val) {
-                //         max_val = color[i];
-                //     }
-                //     if(color[i] < min_val) {
-                //         min_val = color[i];
-                //     }
-                // }
-                // grid[y][x] = color;
+                glm::vec3 color = 255.0f * getColor(y, x);
+                m.at<cv::Vec3f>(y, x).val[2] = color.x;
+                m.at<cv::Vec3f>(y, x).val[1] = color.y;
+                m.at<cv::Vec3f>(y, x).val[0] = color.z;
             }
         }
+        cv::normalize(m, m, 0, 255, cv::NORM_MINMAX, CV_32FC3);
 
-        cv::Mat img = cv::Mat(height, width, CV_32U, grid);
-        unsigned int max, min;
-        cv::minMaxLoc(img, &min, &max);
-        std::ofstream f(filename);
-        f << "P3\n" << width << " " << height << "\n" << max << "\n";
-        for(int i = 0;i < width * height * 3;i+=3) {
-            f << (int)img.data[i] << " " << (int)img.data[i+1] << " " << (int)img.data[i+2] << "\n";
-        }
-        f.close();
 
-        // if(max_val > 255) {
-        //     float factor = log(255) / log(max_val);
-        //     for(int y = 0;y < height;y++) {
-        //         for(int x = 0;x < width;x++){
-        //
-        //             glm::vec3 color = glm::pow(grid[y][x], glm::vec3(factor, factor, factor));
-        //             // color.x = (grid[y][x].x > 10)? pow(grid[y][x].x, factor) : grid[y][x].x;
-        //             // color.y = (grid[y][x].y > 10)? pow(grid[y][x].y, factor) : grid[y][x].y;
-        //             // color.z = (grid[y][x].z > 10)? pow(grid[y][x].z, factor) : grid[y][x].z;
-        //             // (grid[y][x] - min_val)/(max_val-min_val)
-        //             ppm->setPixel(height - y - 1, width - x - 1, (unsigned char) color.x, (unsigned char) color.y, (uint8) color.z);
-        //         }
-        //     }
-        // }
-        // return ppm;
+        std::vector<int> params;
+        params.push_back(cv::IMWRITE_PNG_COMPRESSION);
+        params.push_back(9);
+
+        cv::imwrite(filename, m);
+        std::cout << std::endl;
     }
 
 protected:

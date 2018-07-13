@@ -14,7 +14,7 @@
 int main(int argc, char** argv) {
     if(argc == 2) {
         Camera* cam = new Camera();
-        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 1920, 1080, 60, 33.75f, 5, 1.003);
+        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 512, 512, 60, 5, 1.003);
 
         scene->add_shape(
                 new Sphere(
@@ -57,6 +57,8 @@ int main(int argc, char** argv) {
 
         scene->add_light(new PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.3f, 0.5f, 0.1f)));
         scene->add_light(new PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-0.3f, 0.5f, 0.1f)));
+
+        // scene->add_light(new PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
         scene->save(argv[1]);
 

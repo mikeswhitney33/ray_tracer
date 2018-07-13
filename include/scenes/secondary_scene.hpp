@@ -5,8 +5,8 @@
 
 class SecondaryScene : public Scene {
 public:
-    SecondaryScene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov_x, float fov_y, int recursions, float eta)
-        : Scene(bkgd, cam, w, h, fov_x, fov_y, recursions, eta) {
+    SecondaryScene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov, int recursions, float eta)
+        : Scene(bkgd, cam, w, h, fov, recursions, eta) {
 
     }
 

@@ -3,16 +3,29 @@
 
 #include <scene.hpp>
 
+/*
+ * Class: Primary Scene
+ * --------------------
+ * A class used for a Basic Ray Traced scene. It only sends primary rays
+ *    so no shadows, reflections, or refrasctions will be seen.
+ */
 class PrimaryScene : public Scene {
 public:
-    // Scene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov_x, float fov_y)
-    PrimaryScene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov_x, float fov_y):Scene(bkgd, cam, w, h, fov_x, fov_y, 1, 1.003) {
-
-    }
-
-    virtual ~PrimaryScene() {
-
-    }
+    /*
+     * Constructor
+     * -----------
+     * Constructs a new Primary Scene
+     *
+     * Parameters:
+     *      vec3 bkgd: The background color
+     *      Camera cam: a pointer to an instance of the Camera class
+     *      int w: the width of the image
+     *      int h: the height of the image
+     *      float fov_x: the Field of view in the x direction
+     *      float fov_y: the Field fo view in the y direction
+     */
+    PrimaryScene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov):Scene(bkgd, cam, w, h, fov, 1, 1.003) {}
+    virtual ~PrimaryScene() {}
 private:
     virtual glm::vec3 sample(glm::vec3 r0, glm::vec3 rd, int recursions, float eta1) {
         glm::vec3 normal;

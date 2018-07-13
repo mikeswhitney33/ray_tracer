@@ -5,7 +5,6 @@ INCLUDES = -Iinclude
 C = -x c
 CPP = -x c++
 OUT = -o
-STB = include/stb_image.cpp
 
 MKDIR = mkdir -p
 
@@ -24,10 +23,10 @@ else
 endif
 
 OUT_DIR = build/main
-OUT_FILE = out.ppm
+OUT_FILE = out.png
 
 
-COMPILE = $(CC) $(INCLUDES) $(STB) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS)
+COMPILE = $(CC) $(INCLUDES) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS)
 
 main:
 	$(MKDIR) $(DEST)
