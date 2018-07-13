@@ -23,8 +23,6 @@
 #define SMALL_NUM   ((float)pow(2, -13))
 
 
-// #define clip(a, min_val, max_val) (a > max_val ? max_val : a < min_val ? min_val : a)
-
 class Scene {
 public:
     Scene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov, int recursions, float eta) {
@@ -43,7 +41,6 @@ public:
     }
 
     virtual ~Scene() {
-
         delete camera;
         for(int i = 0;i < shapes.size();i++) {
             delete shapes[i];
@@ -55,7 +52,6 @@ public:
 
     void add_shape(Geometry* shape) {
         shapes.push_back(shape);
-        // std::cout << "Shape Added! Size: " << shapes.size() << std::endl;
     }
 
     void add_light(Light* light) {
@@ -63,7 +59,6 @@ public:
     }
 
     void save(const char* filename) {
-
         cv::Mat m;
         m.create(height, width, CV_32FC(3));
 
@@ -77,7 +72,6 @@ public:
             }
         }
         cv::normalize(m, m, 0, 255, cv::NORM_MINMAX, CV_32FC3);
-
 
         std::vector<int> params;
         params.push_back(cv::IMWRITE_PNG_COMPRESSION);
