@@ -17,8 +17,7 @@ public:
         refractiveStrength = k_refract;
         indexOfRefraction = i_refract;
     }
-    virtual ~Material(){
-    }
+    virtual ~Material(){}
 
     float reflectiveStrength;
     float refractiveStrength;

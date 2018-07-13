@@ -6,13 +6,9 @@
 class SecondaryScene : public Scene {
 public:
     SecondaryScene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov, int recursions, float eta)
-        : Scene(bkgd, cam, w, h, fov, recursions, eta) {
+        : Scene(bkgd, cam, w, h, fov, recursions, eta) {}
 
-    }
-
-    virtual ~SecondaryScene() {
-
-    }
+    virtual ~SecondaryScene() {}
 private:
     virtual glm::vec3 sample(glm::vec3 r0, glm::vec3 rd, int recursions, float eta1) {
         glm::vec3 normal;

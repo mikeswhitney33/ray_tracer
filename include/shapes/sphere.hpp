@@ -10,9 +10,7 @@ public:
         radius = r;
     }
 
-    virtual ~Sphere(){
-
-    }
+    virtual ~Sphere(){}
 
     bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) {
         glm::vec3 oc = center - r0;

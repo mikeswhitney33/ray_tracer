@@ -16,8 +16,7 @@ public:
         Cuv = c_uv;
     }
 
-    virtual ~Triangle() {
-    }
+    virtual ~Triangle() {}
 
     bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) {
         glm::vec3 u = B - A;

@@ -36,8 +36,8 @@ public:
         fov_x = fov;
         fov_y = fov * ((w > h) ? (float)h / (float)w : (float) w / (float)h);
 
-        u_max = 2 * (float) tan(glm::radians(fov_y / 2.0f));
-        v_max = 2 * (float) tan(glm::radians(fov_x / 2.0f));
+        u_max = 2 * (float) tan(glm::radians(fov_x / 2.0f));
+        v_max = 2 * (float) tan(glm::radians(fov_y / 2.0f));
         max_recursions = recursions;
         initial_eta = eta;
     }
@@ -64,9 +64,8 @@ public:
 
     void save(const char* filename) {
 
-        // cv::Mat m(width, height , CV_32FC(3), cv::Scalar(0.0f, 0.0f, 0.0f));
         cv::Mat m;
-        m.create(width, height, CV_32FC(3));
+        m.create(height, width, CV_32FC(3));
 
         for(int y = 0;y < height;y++) {
             std::cout << y << "/" << height << " -- " << (100 * y / height)  << "%       \r" << std::flush;

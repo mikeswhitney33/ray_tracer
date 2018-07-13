@@ -39,8 +39,9 @@ public:
             {0.0f, 0.0f, 0.0f, 1.0f}
         };
         memcpy(glm::value_ptr(vrc), M, sizeof(M));
-        // vrc =  glm::make_mat4(M);
     }
+
+    virtual ~Camera() {}
 };
 
 #endif

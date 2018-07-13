@@ -14,13 +14,13 @@
 int main(int argc, char** argv) {
     if(argc == 2) {
         Camera* cam = new Camera();
-        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 512, 512, 60, 5, 1.003);
+        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 1920, 1080, 60, 5, 1.003);
 
         scene->add_shape(
                 new Sphere(
                         new TextureMaterial(
                                 "resources/bowling_ball.png",
-                                32,//PHong
+                                32,//Phong
                                 0.4f, // Ambient
                                 0.75f, // Specular
                                 0.0f),
