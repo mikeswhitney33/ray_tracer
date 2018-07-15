@@ -8,6 +8,7 @@
 #include <vector>
 #include <material.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <model.hpp>
 #include <fstream>
 #include <ctime>
 #include <chrono>
@@ -52,6 +53,14 @@ public:
 
     void add_shape(Geometry* shape) {
         shapes.push_back(shape);
+    }
+
+
+    void add_model(Model* model) {
+        std::vector<Geometry*> s = model->getShapes();
+        for(int i = 0;i < s.size();i++) {
+            add_shape(s[i]);
+        }
     }
 
     void add_light(Light* light) {

@@ -11,6 +11,7 @@ MKDIR = mkdir -p
 MAIN_DIR = build/main
 
 OPENCVFLAGS = $(shell pkg-config --libs opencv)
+ASSIMP = $(shell pkg-config --libs assimp)
 
 SRC = src/main.cpp
 DEST = build/main
@@ -26,7 +27,7 @@ OUT_DIR = build/main
 OUT_FILE = out.png
 
 
-COMPILE = $(CC) $(INCLUDES) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS)
+COMPILE = $(CC) $(INCLUDES) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS) $(ASSIMP)
 
 main:
 	$(MKDIR) $(DEST)

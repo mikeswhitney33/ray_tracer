@@ -9,56 +9,27 @@
 #include <scenes/secondary_scene.hpp>
 #include <shapes/triangle.hpp>
 
+#include <model.hpp>
+
 #include <fstream>
 
 int main(int argc, char** argv) {
     if(argc == 2) {
         Camera* cam = new Camera();
-        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 1920, 1080, 60, 5, 1.003);
+        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 32, 32, 60, 5, 1.003);
 
-        scene->add_shape(
-                new Sphere(
-                        new TextureMaterial(
-                                "resources/bowling_ball.png",
-                                32,//Phong
-                                0.4f, // Ambient
-                                0.75f, // Specular
-                                0.0f),
-                        glm::vec3(0.0f, -0.1f, 0.0f),
-                        0.2f
-                ));
+        scene->add_model(new Model(
+                "resources/dragon.obj",
+                new ColorMaterial(glm::vec3(1.0f, 0.0f, 0.0f), 32, 0.4f, 0.4f),
+                glm::vec3(0.0f, -0.5f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.1f, 0.1f, 0.1f)
+        ));
 
-        scene->add_shape(
-                new Sphere(
-                        new ColorMaterial(
-                                glm::vec3(0.7f, 0.3f, 0.3f),
-                                4, //Phong Constant
-                                0.2f, //Ambient Strength
-                                0.75f, //Specular Strength
-                                0.5f, //Reflective Strength
-                                0.5f, //Refractive Strength
-                                1.25f), //Index of Refraction
-                        glm::vec3(0.1f, -0.2f, 0.3f),
-                        0.1f
-                ));
-
-        scene->add_shape(
-                new Triangle(
-                        new TextureMaterial("resources/chess.png", 32, 0.1f, 0.75f, 0.0f),
-                        glm::vec3(-1.0f, -0.3f, -1.0f), glm::vec3(1.0f, -0.3f, -1.0f), glm::vec3(1.0f, -0.3f, 1.0f),
-                        glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f)
-                ));
-        scene->add_shape(
-                new Triangle(
-                        new TextureMaterial("resources/chess.png", 32, 0.1f, 0.75f, 0.0f),
-                        glm::vec3(-1.0f, -0.3f, -1.0f), glm::vec3(-1.0f, -0.3f, 1.0f), glm::vec3(1.0f, -0.3f, 1.0f),
-                        glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec2(1.0f, 1.0f)
-                ));
-
-        scene->add_light(new PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.3f, 0.5f, 0.1f)));
-        scene->add_light(new PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-0.3f, 0.5f, 0.1f)));
-
-        // scene->add_light(new PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+        scene->add_light(new PointLight(
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f)
+        ));
 
         scene->save(argv[1]);
 

@@ -15,7 +15,17 @@ public:
         nrChannels = img.channels();
         img_data = new unsigned char[width * height * nrChannels];
         memcpy(img_data, img.data, width * height * nrChannels);
+        id = 1;
+    }
 
+    TextureMaterial(Material* mat): Material(mat) {
+        TextureMaterial* t_mat = dynamic_cast<TextureMaterial*>(mat);
+        width = t_mat->width;
+        height = t_mat->height;
+        nrChannels = t_mat->nrChannels;
+        img_data = new unsigned char[width * height * nrChannels];
+        memcpy(img_data, t_mat->img_data, width * height * nrChannels);
+        id = t_mat->id;
     }
     virtual ~TextureMaterial() {
         delete img_data;

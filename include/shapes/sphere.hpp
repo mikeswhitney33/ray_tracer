@@ -8,11 +8,15 @@ public:
     Sphere(Material* mat, glm::vec3 c, float r):Geometry(mat)  {
         center = c;
         radius = r;
+        setExtents();
     }
 
     virtual ~Sphere(){}
 
     bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) {
+        if(!inBounds(r0, rd)) {
+            return false;
+        }
         glm::vec3 oc = center - r0;
         float oc_mag = glm::length(oc);
         bool inside_sphere = oc_mag < radius;
@@ -41,6 +45,11 @@ public:
 private:
     glm::vec3 center;
     float radius;
+
+    void setExtents() {
+        lowExtents = center - radius;
+        highExtents = center + radius;
+    }
 };
 
 #endif

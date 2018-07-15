@@ -17,6 +17,15 @@ public:
         refractiveStrength = k_refract;
         indexOfRefraction = i_refract;
     }
+
+    Material(Material* mat) {
+        phong = mat->phong;
+        ambientStrength = mat->ambientStrength;
+        specularStrength = mat->specularStrength;
+        reflectiveStrength = mat->reflectiveStrength;
+        refractiveStrength = mat->refractiveStrength;
+        indexOfRefraction = mat->indexOfRefraction;
+    }
     virtual ~Material(){}
 
     float reflectiveStrength;
@@ -50,7 +59,13 @@ public:
         }
         return final_light * objectColor;
     }
+
+    int getID() {
+        return id;
+    }
 class Geometry* shape;
+protected:
+    int id;
 private:
     virtual glm::vec3 getObjectColor(glm::vec3 pt) = 0;
     int phong;
