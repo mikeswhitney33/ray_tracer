@@ -5,54 +5,29 @@
 
 #include <geometry.hpp>
 
-struct GeometryNode {
-    Geometry* shape;
-    int index;
-}
-
-class OctreeNode {
-public:
-    OctreeNode(){}
-    virtual ~OctreeNode(){}
-    virtual bool isLeaf() = 0;
-    virtual OctreeNode* add_shape(Geometry* shape, int index) = 0;
-    virtual bool intersect(glm::vec3 r0, glm::vec3 rd, float &t, glm::vec3 &normal, glm::vec2 &uv, int &shape_index) = 0;
-};
-
-class OctreeBranch : public OctreeNode {
-public:
-    virtual bool isLeaf() {return false;}
-    virtual OctreeNode* add_shape(Geometry* shape, int index) {
-        return this;
-    }
-
-private:
-    std::vector<OctreeNode*> children;
-};
-
-class OctreeLeaf : public OctreeNode {
-    virtual bool isLeaf() {return true;}
-    virtual OctreeNode* add_shape(Geometry* shape, int index) {
-        return this;
-    }
-};
-
 class Octree {
 public:
-    Octree(){
-
-    }
-    ~Octree(){}
-    void add_shape(Geometry* shape, int index) {
-        root = root->add_shape(shape, index);
-    }
-
-    bool intersect(glm::vec3 r0, glm::vec3 rd, float &t, glm::vec3 &normal, glm::vec2 &uv, int &shape_index) {
-        return root->intersect(r0, rd, t, normal, uv, shape_index);
+    Octree(std::vector<Geometry*> shapes) {
+        lowExtent = shapes[0].getLowExtents();
+        highExtent = shapes[0].getHighExtents();
+        for(int i = 0;i < shapes.size();i++){
+            Geometry* shape = shapes[i];
+            glm::vec3 shape_low = shape->getLowExtents();
+            glm::vec3 shape_high = shape->getHighExtents();
+            for(int j = 0;j < 3;j++) {
+                if(shape_low[j] < lowExtent[j]) {
+                    lowExtent[j] = shape_low[j];
+                }
+                if(shape_high[j] > highExtnet[j]){
+                    highExtent[j] = shape_high[j];
+                }
+            }
+        }
     }
 
 private:
-    OctreeNode* root;
+    glm::vec3 lowExtent;
+    glm::vec3 highExtent;
 };
 
 #endif
