@@ -32,7 +32,7 @@ public:
     float refractiveStrength;
     float indexOfRefraction;
 
-    glm::vec3 getColor(glm::vec3 interPos, glm::vec3 normal, glm::vec3 viewPos, std::vector<Light*> lights, std::vector<bool> shadows) {
+    glm::vec3 getColor(glm::vec3 interPos, glm::vec3 normal, glm::vec3 viewPos, glm::vec2 uv, std::vector<Light*> lights, std::vector<bool> shadows) {
 
         glm::vec3 objectColor = getObjectColor(interPos);
         glm::vec3 final_light = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -67,7 +67,7 @@ class Geometry* shape;
 protected:
     int id;
 private:
-    virtual glm::vec3 getObjectColor(glm::vec3 pt) = 0;
+    virtual glm::vec3 getObjectColor(glm::vec2 uv) = 0;
     int phong;
     float ambientStrength;
     float specularStrength;

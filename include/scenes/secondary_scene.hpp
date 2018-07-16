@@ -14,11 +14,12 @@ private:
         glm::vec3 normal;
         float t;
         int i;
-        if(recursions < max_recursions && intersect(r0, rd, t, normal, i)) {
+        glm::vec2 uv;
+        if(recursions < max_recursions && intersect(r0, rd, t, normal, uv, i)) {
             Material* mat = shapes[i]->getMaterial();
             std::vector<bool> shadows = inShadow(r0 + t * rd);
 
-            glm::vec3 matColor = mat->getColor(r0 + rd * t, normal, r0, lights, inShadow(r0 + t * rd));
+            glm::vec3 matColor = mat->getColor(r0 + rd * t, normal, r0, uv, lights, inShadow(r0 + t * rd));
 
             if(mat->reflectiveStrength > 0) {
                 matColor += mat->reflectiveStrength * reflect(r0 + rd * t, rd, glm::normalize(normal), recursions, eta1);

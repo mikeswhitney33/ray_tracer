@@ -32,9 +32,7 @@ public:
     }
 
 private:
-    glm::vec3 getObjectColor(glm::vec3 pt) {
-        glm::vec2 uv = shape->getUV(pt);
-
+    glm::vec3 getObjectColor(glm::vec2 uv) {
         int u = (int)(uv.x * width) % width;
         int v = (int)(uv.y * height) % height;
         int idx = (v * height + u) * nrChannels;

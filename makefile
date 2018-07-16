@@ -12,6 +12,7 @@ MAIN_DIR = build/main
 
 OPENCVFLAGS = $(shell pkg-config --libs opencv)
 ASSIMP = $(shell pkg-config --libs assimp)
+THREADS = -lpthread
 
 SRC = src/main.cpp
 DEST = build/main
@@ -27,7 +28,7 @@ OUT_DIR = build/main
 OUT_FILE = out.png
 
 
-COMPILE = $(CC) $(INCLUDES) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS) $(ASSIMP)
+COMPILE = $(CC) $(INCLUDES) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS) $(ASSIMP) $(THREADS)
 
 main:
 	$(MKDIR) $(DEST)

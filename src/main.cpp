@@ -12,15 +12,20 @@
 #include <model.hpp>
 
 #include <fstream>
+#include <timing.hpp>
+
+void forwarder(void* context, const char* arg) {
+    static_cast<Scene*>(context)->save(arg);
+}
 
 int main(int argc, char** argv) {
     if(argc == 2) {
         Camera* cam = new Camera();
-        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 32, 32, 60, 5, 1.003);
+        Scene* scene = new SecondaryScene(glm::vec3(0.0f, 0.5f, 1.0f), cam, 512, 512, 60, 5, 1.003);
 
         scene->add_model(new Model(
                 "resources/dragon.obj",
-                new ColorMaterial(glm::vec3(1.0f, 0.0f, 0.0f), 32, 0.4f, 0.4f),
+                new ColorMaterial(glm::vec3(1.0f, 0.0f, 0.0f), 32, 0.4f, 0.4f, 0.5f),
                 glm::vec3(0.0f, -0.5f, 0.0f),
                 glm::vec3(0.0f, 0.0f, 0.0f),
                 glm::vec3(0.1f, 0.1f, 0.1f)

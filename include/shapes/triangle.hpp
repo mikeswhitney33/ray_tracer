@@ -11,30 +11,21 @@ public:
         :Geometry(mat) {
         setVerts(a, b, c);
         hasVertexNormals = false;
-        hasTextureUV = false;
-        setSurfaceNormal();
-        setDenom();
-        setExtents();
+        init();
     }
     Triangle(Material* mat, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 an, glm::vec3 bn, glm::vec3 cn)
         :Geometry(mat) {
         setVerts(a, b, c);
         setNormals(an, bn, cn);
         hasVertexNormals = true;
-        hasTextureUV = false;
-        setSurfaceNormal();
-        setDenom();
-        setExtents();
+        init();
     }
     Triangle(Material* mat, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec2 at, glm::vec2 bt, glm::vec2 ct)
         :Geometry(mat) {
         setVerts(a, b, c);
         setTextureUV(at, bt, ct);
-        hasTextureUV = true;
         hasVertexNormals = false;
-        setSurfaceNormal();
-        setDenom();
-        setExtents();
+        init();
     }
 
     Triangle(Material* mat, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 an, glm::vec3 bn, glm::vec3 cn, glm::vec2 at, glm::vec2 bt, glm::vec2 ct)
@@ -42,16 +33,13 @@ public:
         setVerts(a, b, c);
         setNormals(an, bn, cn);
         setTextureUV(at, bt, ct);
-        hasTextureUV = true;
         hasVertexNormals = true;
-        setSurfaceNormal();
-        setDenom();
-        setExtents();
+        init();
     }
 
     virtual ~Triangle() {}
 
-    bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) {
+    bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t, glm::vec2 &uv) {
         if(!inBounds(r0, rd)) {
             return false;
         }
@@ -66,12 +54,12 @@ public:
         float invDet = 1.0f / det;
         glm::vec3 tvec = r0 - A;
         // float u, v;
-        u = glm::dot(tvec, pvec) * invDet;
+        float u = glm::dot(tvec, pvec) * invDet;
         if(u < 0 || u > 1) {
             return false;
         }
         glm::vec3 qvec = glm::cross(tvec, AB);
-        v = glm::dot(rd, qvec) * invDet;
+        float v = glm::dot(rd, qvec) * invDet;
         if(v < 0 || u + v > 1) {
             return false;
         }
@@ -82,28 +70,24 @@ public:
                 return false;
         }
 
-
-        normal = glm::cross(AB, AC);
-        if(glm::dot(rd, normal) >= 0) {
-            normal = glm::cross(AC, AB);
+        if(!hasVertexNormals) {
+            normal = surfaceNormal;
+            if(glm::dot(rd, normal) >= 0) {
+                normal = -normal;
+            }
         }
+        else {
+            normal = An * u + Bn * v + Cn * (1 - u - v);
+        }
+        uv = Auv * u + Buv * v + Cuv * (1 - u - v);
+        // normal = glm::cross(AB, AC);
+        // if(glm::dot(rd, normal) >= 0) {
+        //     normal = glm::cross(AC, AB);
+        // }
 
         return true;
     }
 
-    glm::vec2 getUV(glm::vec3 pt) {
-        return Auv * u + Buv * v + Cuv * (1 - u - v);
-        // glm::vec3 f1 = A - pt;
-        // glm::vec3 f2 = B - pt;
-        // glm::vec3 f3 = C - pt;
-        //
-        // float a = glm::length(glm::cross(A - B, A - C));
-        // float a1 = glm::length(glm::cross(f2, f3)) / a;
-        // float a2 = glm::length(glm::cross(f3, f1)) / a;
-        // float a3 = glm::length(glm::cross(f1, f2)) / a;
-        // return Auv * a1 + Buv * a2 + Cuv * a3;
-        // return glm::vec2(0.0f, 0.0f);
-    }
 private:
     void setVerts(glm::vec3 a, glm::vec3 b, glm::vec3 c) {
         A = a;B = b;C = c;
@@ -114,11 +98,9 @@ private:
     void setTextureUV(glm::vec2 a, glm::vec2 b, glm::vec2 c) {
         Auv = a;Buv = b;Cuv = c;
     }
-    void setSurfaceNormal() {
+    void init() {
         surfaceNormal = glm::cross(B - A, C - A);
-    }
-    void setDenom() {
-        denom = glm::dot(surfaceNormal, surfaceNormal);
+        setExtents();
     }
 
     void setExtents() {
@@ -144,13 +126,9 @@ private:
     glm::vec3 A, B, C;
     bool hasVertexNormals;
     glm::vec3 An, Bn, Cn;
-    bool hasTextureUV;
     glm::vec2 Auv, Buv, Cuv;
 
     glm::vec3 surfaceNormal;
-    float denom;
-
-    float u, v;
 };
 
 #endif

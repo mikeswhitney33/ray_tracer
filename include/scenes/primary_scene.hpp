@@ -31,13 +31,14 @@ private:
         glm::vec3 normal;
         float t;
         int idx;
-        if(intersect(r0, rd, t, normal, idx)) {
+        glm::vec2 uv;
+        if(intersect(r0, rd, t, normal, uv, idx)) {
             Material* mat = shapes[idx]->getMaterial();
             std::vector<bool> shadows;
             for(int i = 0;i < lights.size();i++) {
                 shadows.push_back(false);
             }
-            return mat->getColor(r0 + rd * t, normal, r0, lights, shadows);
+            return mat->getColor(r0 + rd * t, normal, r0, uv, lights, shadows);
         }
         else {
             return backgroundColor;

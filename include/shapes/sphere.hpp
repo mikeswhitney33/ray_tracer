@@ -13,7 +13,7 @@ public:
 
     virtual ~Sphere(){}
 
-    bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) {
+    bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t, glm::vec2 &uv) {
         if(!inBounds(r0, rd)) {
             return false;
         }
@@ -32,15 +32,13 @@ public:
         t = (!inside_sphere)? tca - thc : tca + thc;
         glm::vec3 inter = r0 + rd * t;
         normal = (inter - center) / radius;
+
+        float u = atan2(normal.x, normal.z) / (2 * M_PI) + 0.5;
+        float v = normal.y * 0.5 + 0.5;
+        uv = glm::vec2(u, v);
         return true;
     }
 
-    glm::vec2 getUV(glm::vec3 pt) {
-        glm::vec3 n = glm::normalize(pt - center);
-        float u = atan2(n.x, n.z) / (2 * M_PI) + 0.5;
-        float v = n.y * 0.5 + 0.5;
-        return glm::vec2(u, v);
-    }
 
 private:
     glm::vec3 center;

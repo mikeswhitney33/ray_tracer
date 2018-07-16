@@ -14,12 +14,19 @@ public:
     virtual ~Geometry(){
         delete material;
     }
-    virtual bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t) = 0;
+    virtual bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t, glm::vec2 &uv) = 0;
     Material* getMaterial() {
         return material;
     }
 
-    virtual glm::vec2 getUV(glm::vec3 pt) = 0;
+    glm::vec3 getLowExtents() {
+        return lowExtents;
+    }
+
+    glm::vec3 getHighExtents() {
+        return highExtents;
+    }
+
 protected:
     glm::vec3 lowExtents;
     glm::vec3 highExtents;

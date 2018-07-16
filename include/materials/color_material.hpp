@@ -20,7 +20,7 @@ public:
 
 private:
     glm::vec3 color;
-    glm::vec3 getObjectColor(glm::vec3 pt) {
+    glm::vec3 getObjectColor(glm::vec2 uv) {
         return color;
     }
 };

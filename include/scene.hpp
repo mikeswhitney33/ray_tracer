@@ -10,8 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <model.hpp>
 #include <fstream>
-#include <ctime>
-#include <chrono>
+#include <timing.hpp>
+#include <thread>
 
 #include <opencv2/core.hpp>
 #include <opencv2/core/core.hpp>
@@ -67,19 +67,29 @@ public:
         lights.push_back(light);
     }
 
+    static void set_color(Scene* context, int y, int x, cv::Mat m) {
+        glm::vec3 color = 255.0f * context->getColor(y, x);
+        m.at<cv::Vec3f>(y, x).val[2] = color.x;
+        m.at<cv::Vec3f>(y, x).val[1] = color.y;
+        m.at<cv::Vec3f>(y, x).val[0] = color.z;
+    }
+
     void save(const char* filename) {
         cv::Mat m;
         m.create(height, width, CV_32FC(3));
 
+        ProgressBar bar(height);
+        std::thread workers[width];
         for(int y = 0;y < height;y++) {
-            std::cout << y << "/" << height << " -- " << (100 * y / height)  << "%       \r" << std::flush;
             for(int x = 0;x < width;x++) {
-                glm::vec3 color = 255.0f * getColor(y, x);
-                m.at<cv::Vec3f>(y, x).val[2] = color.x;
-                m.at<cv::Vec3f>(y, x).val[1] = color.y;
-                m.at<cv::Vec3f>(y, x).val[0] = color.z;
+                workers[x] = std::thread(set_color, this, y, x, m);
             }
+            for(int x = 0; x< width;x++) {
+                workers[x].join();
+            }
+            bar.tick();
         }
+
         cv::normalize(m, m, 0, 255, cv::NORM_MINMAX, CV_32FC3);
 
         std::vector<int> params;
@@ -126,7 +136,8 @@ protected:
             glm::vec3 rd = glm::normalize(lights[i]->getDirection(r0));
             float t;
             glm::vec3 n;
-            if(intersect(r0 + SMALL_NUM * rd, rd, t, n, shape_index)) {
+            glm::vec2 uv;
+            if(intersect(r0 + SMALL_NUM * rd, rd, t, n, uv, shape_index)) {
                 glm::vec3 inter = r0 + t * rd;
                 float dist = glm::distance(r0, inter);
                 if(dist < light_dist) {
@@ -139,17 +150,19 @@ protected:
         return shadows;
     }
 
-    virtual bool intersect(glm::vec3 r0, glm::vec3 rd, float &t, glm::vec3 &normal, int &shape_index) {
+    virtual bool intersect(glm::vec3 r0, glm::vec3 rd, float &t, glm::vec3 &normal, glm::vec2 &uv, int &shape_index) {
         t = 9999.0f;
         shape_index = -1;
         for(int i = 0;i < shapes.size();i++) {
             glm::vec3 tmp_normal;
             float t_tmp;
-            if(shapes[i]->intersect(r0, rd, tmp_normal, t_tmp)) {
+            glm::vec2 tmp_uv;
+            if(shapes[i]->intersect(r0, rd, tmp_normal, t_tmp, tmp_uv)) {
                 if(t_tmp < t) {
                     t = t_tmp;
                     shape_index = i;
                     normal = tmp_normal;
+                    uv = tmp_uv;
                 }
             }
         }
