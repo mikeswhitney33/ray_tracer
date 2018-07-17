@@ -118,7 +118,6 @@ public:
 
     std::vector<Geometry*> getShapes() const{
         return shapes;
-
     }
 
 

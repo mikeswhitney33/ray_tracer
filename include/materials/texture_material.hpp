@@ -16,6 +16,7 @@ public:
         img_data = new unsigned char[width * height * nrChannels];
         memcpy(img_data, img.data, width * height * nrChannels);
         id = 1;
+        img.release();
     }
 
     TextureMaterial(Material* mat): Material(mat) {

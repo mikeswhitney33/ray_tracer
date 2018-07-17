@@ -40,7 +40,7 @@ public:
     virtual ~Triangle() {}
 
     bool intersect(const Ray &ray, glm::vec3 &normal, float &t, glm::vec2 &uv) {
-        if(!inBounds(ray)) {
+        if(!bounding_box.intersect(ray)) {
             return false;
         }
         glm::vec3 AB = B - A;
@@ -65,7 +65,7 @@ public:
         }
 
         t = glm::dot(AC, qvec) * invDet;
-        // std::cout << "T: " << t << std::endl;
+
         if(t < 0) {
                 return false;
         }
@@ -80,10 +80,6 @@ public:
             normal = An * u + Bn * v + Cn * (1 - u - v);
         }
         uv = Auv * u + Buv * v + Cuv * (1 - u - v);
-        // normal = glm::cross(AB, AC);
-        // if(glm::dot(rd, normal) >= 0) {
-        //     normal = glm::cross(AC, AB);
-        // }
 
         return true;
     }

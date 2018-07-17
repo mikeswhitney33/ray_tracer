@@ -28,7 +28,7 @@ OUT_DIR = build/main
 OUT_FILE = out.png
 
 
-COMPILE = $(CC) $(INCLUDES) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS) $(ASSIMP) $(THREADS)
+COMPILE = $(CC) -g $(INCLUDES) $(IN_SRC) $(SRC) $(OUT) $(DEST)/$(EXEC)  $(OPENCVFLAGS) $(ASSIMP) $(THREADS)
 
 main:
 	$(MKDIR) $(DEST)

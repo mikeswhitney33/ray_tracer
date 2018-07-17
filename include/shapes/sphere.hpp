@@ -14,7 +14,7 @@ public:
     virtual ~Sphere(){}
 
     bool intersect(const Ray &ray, glm::vec3 &normal, float &t, glm::vec2 &uv) {
-        if(!inBounds(ray)) {
+        if(!bounding_box.intersect(ray)) {
             return false;
         }
         glm::vec3 oc = center - ray.orig;
