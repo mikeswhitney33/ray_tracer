@@ -8,7 +8,7 @@
 
 class TextureMaterial: public Material {
 public:
-    TextureMaterial(const char* filename, int n, float ka, float ks, float k_reflect=0.0f, float k_refract=0.0f, float i_refract=1.003):Material(n, ka, ks, k_reflect, k_refract, i_refract) {
+    TextureMaterial(const char* filename, const int &n, const float &ka, const float &ks, float k_reflect=0.0f, float k_refract=0.0f, float i_refract=1.003):Material(n, ka, ks, k_reflect, k_refract, i_refract) {
         cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
         width = img.cols;
         height = img.rows;
@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    glm::vec3 getObjectColor(glm::vec2 uv) {
+    glm::vec3 getObjectColor(const glm::vec2 &uv) {
         int u = (int)(uv.x * width) % width;
         int v = (int)(uv.y * height) % height;
         int idx = (v * height + u) * nrChannels;

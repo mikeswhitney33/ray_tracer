@@ -5,7 +5,7 @@
 
 class ColorMaterial: public Material {
 public:
-    ColorMaterial(glm::vec3 c, int n, float ka, float ks, float k_reflect=0.0f, float k_refract=0.0f, float i_refract=1.003):Material(n, ka, ks, k_reflect, k_refract, i_refract) {
+    ColorMaterial(const glm::vec3 &c, const int &n, const float &ka, const float &ks, const float &k_reflect=0.0f, const float &k_refract=0.0f, const float &i_refract=1.003):Material(n, ka, ks, k_reflect, k_refract, i_refract) {
         color = c;
         id = 0;
     }
@@ -20,7 +20,7 @@ public:
 
 private:
     glm::vec3 color;
-    glm::vec3 getObjectColor(glm::vec2 uv) {
+    glm::vec3 getObjectColor(const glm::vec2 &uv) {
         return color;
     }
 };

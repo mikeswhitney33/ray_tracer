@@ -12,6 +12,9 @@
 #include <fstream>
 #include <timing.hpp>
 #include <thread>
+#include <bounding_box.hpp>
+#include <ray.hpp>
+#include <octree.hpp>
 
 #include <opencv2/core.hpp>
 #include <opencv2/core/core.hpp>
@@ -26,7 +29,7 @@
 
 class Scene {
 public:
-    Scene(glm::vec3 bkgd, Camera* cam, int w, int h, float fov, int recursions, float eta) {
+    Scene(const glm::vec3 &bkgd, const Camera &cam, const int &w, const int &h, const float &fov, const int &recursions, const float &eta) {
         backgroundColor = bkgd;
         camera = cam;
         width = w;
@@ -39,31 +42,56 @@ public:
         v_max = 2 * (float) tan(glm::radians(fov_y / 2.0f));
         max_recursions = recursions;
         initial_eta = eta;
+
+        tree = new Octree(BoundingBox(glm::vec3(-999.0f, -999.0f, -999.0f), glm::vec3(999.0f, 999.0f, 999.0f)));
+
+
+        // left_box = BoundingBox(glm::vec3(-999.0f, -999.0f, -999.0f), glm::vec3(0, 999.0f, 999.0f));
+        // right_box = BoundingBox(glm::vec3(0.0f, -999.0f, -999.0f), glm::vec3(999.0f, 999.0f, 999.0f));
+
     }
 
     virtual ~Scene() {
-        delete camera;
-        for(int i = 0;i < shapes.size();i++) {
-            delete shapes[i];
+        for(int i = 0;i < left_shapes.size();i++) {
+            delete left_shapes[i];
+        }
+        for(int i = 0;i < right_shapes.size();i++) {
+            delete right_shapes[i];
+        }
+        for(int i = 0;i < middle_shapes.size();i++) {
+            delete middle_shapes[i];
         }
         for(int i = 0;i < lights.size();i++) {
             delete lights[i];
         }
+        delete tree;
     }
 
     void add_shape(Geometry* shape) {
-        shapes.push_back(shape);
+        tree->add_shape(shape);
+        // bool left, right;
+        // left = left_box.intersect(shape->bounding_box);
+        // right = right_box.intersect(shape->bounding_box);
+        // if(left && right) {
+        //     middle_shapes.push_back(shape);
+        // }
+        // else if(left) {
+        //     left_shapes.push_back(shape);
+        // }
+        // else if(right) {
+        //     right_shapes.push_back(shape);
+        // }
     }
 
 
-    void add_model(Model* model) {
-        std::vector<Geometry*> s = model->getShapes();
+    void add_model(const Model &model) {
+        std::vector<Geometry*> s = model.getShapes();
         for(int i = 0;i < s.size();i++) {
             add_shape(s[i]);
         }
     }
 
-    void add_light(Light* light) {
+    void add_light( Light* light) {
         lights.push_back(light);
     }
 
@@ -75,6 +103,40 @@ public:
     }
 
     void save(const char* filename) {
+        std::cout << "Saving " << filename << std::endl;
+        // float min_vals[3];
+        // memset(min_vals, 9999.0f, 3 * sizeof(float));
+        // float max_vals[3];
+        // memset(max_vals, -9999.0f, 3 * sizeof(float));
+        // std::cout << "Memsets" << std::endl;
+        // for(int i = 0;i < shapes.size();i++) {
+        //     for(int j = 0; j < 3;j++) {
+        //         if(shapes[i]->bounding_box->lowExtent[j] < min_vals[j]) {
+        //             min_vals[j] = shapes[i]->bounding_box->lowExtent[j];
+        //         }
+        //         if(shapes[i]->bounding_box->highExtent[j] > max_vals[j]) {
+        //             max_vals[j] = shapes[i]->bounding_box->highExtent[j];
+        //         }
+        //     }
+        // }
+
+
+
+        // for(int i = 0;i < shapes.size();i++) {
+        //     bool left = shapes[i]->bounding_box->intersect(left_box);
+        //     bool right = shapes[i]->bounding_box->intersect(right_box);
+        //     if(left && right) {
+        //         middle_shapes.push_back(shapes[i]);
+        //     }
+        //     else if(left) {
+        //         left_shapes.push_back(shapes[i]);
+        //     }
+        //     else {
+        //         right_shapes.push_back(shapes[i]);
+        //     }
+        // }
+
+
         cv::Mat m;
         m.create(height, width, CV_32FC(3));
 
@@ -101,10 +163,19 @@ public:
     }
 
 protected:
-    std::vector<Geometry*> shapes;
+    // std::vector<Geometry*> shapes;
+
+    BoundingBox left_box;
+    BoundingBox right_box;
+
+
+    std::vector<Geometry*> left_shapes;
+    std::vector<Geometry*> right_shapes;
+    std::vector<Geometry*> middle_shapes;
+
     std::vector<Light*> lights;
     glm::vec3 backgroundColor;
-    Camera* camera;
+    Camera camera;
     int width, height;
     float u_max, v_max;
     int max_recursions;
@@ -112,7 +183,7 @@ protected:
 
     virtual glm::vec3 reflect(glm::vec3 pt, glm::vec3 rd, glm::vec3 normal, int recursions, float eta1) {
         rd = glm::reflect(rd, normal);
-        return sample(pt + rd * SMALL_NUM, rd, recursions + 1, eta1);
+        return sample(Ray(pt + rd * SMALL_NUM, rd), recursions + 1, eta1);
     }
 
     virtual glm::vec3 refract(glm::vec3 pt, glm::vec3 rd, glm::vec3 normal, float eta1, float eta2, int recursions) {
@@ -125,19 +196,21 @@ protected:
         }
         float eta = eta1 / eta2;
         rd = glm::refract(rd, normal, eta);
-        return sample(pt + rd * SMALL_NUM, rd, recursions + 1, eta2);
+        return sample(Ray(pt + rd * SMALL_NUM, rd), recursions + 1, eta2);
+        // return sample(pt + rd * SMALL_NUM, rd, recursions + 1, eta2);
     }
 
     virtual std::vector<bool> inShadow(glm::vec3 r0) {
         std::vector<bool> shadows;
-        int shape_index;
         for(int i = 0;i < lights.size();i++) {
             float light_dist = lights[i]->getDistance(r0);
             glm::vec3 rd = glm::normalize(lights[i]->getDirection(r0));
             float t;
             glm::vec3 n;
             glm::vec2 uv;
-            if(intersect(r0 + SMALL_NUM * rd, rd, t, n, uv, shape_index)) {
+            Geometry* shape;
+            if(intersect(Ray(r0 + SMALL_NUM * rd, rd), t, n, uv, shape)){
+            // if(intersect(r0 + SMALL_NUM * rd, rd, t, n, uv, shape)) {
                 glm::vec3 inter = r0 + t * rd;
                 float dist = glm::distance(r0, inter);
                 if(dist < light_dist) {
@@ -150,23 +223,72 @@ protected:
         return shadows;
     }
 
-    virtual bool intersect(glm::vec3 r0, glm::vec3 rd, float &t, glm::vec3 &normal, glm::vec2 &uv, int &shape_index) {
-        t = 9999.0f;
-        shape_index = -1;
-        for(int i = 0;i < shapes.size();i++) {
-            glm::vec3 tmp_normal;
-            float t_tmp;
-            glm::vec2 tmp_uv;
-            if(shapes[i]->intersect(r0, rd, tmp_normal, t_tmp, tmp_uv)) {
-                if(t_tmp < t) {
-                    t = t_tmp;
-                    shape_index = i;
-                    normal = tmp_normal;
-                    uv = tmp_uv;
-                }
-            }
-        }
-        return shape_index > -1;
+    virtual bool intersect(const Ray &ray, float &t, glm::vec3 &normal, glm::vec2 &uv, Geometry* &shape) {
+        return tree->intersect(ray, normal, t, uv, shape);
+        // t = 999.0f;
+        // bool shape_chosen = false;
+        // glm::vec3 n;
+        // float t_tmp;
+        // glm::vec2 uv_tmp;
+        // bool left, right;
+        // left = left_box.intersect(ray);
+        // right = right_box.intersect(ray);
+        // if(left && right) {
+        //     for(int i = 0;i < middle_shapes.size();i++) {
+        //         if(middle_shapes[i]->intersect(ray, n, t_tmp, uv_tmp)) {
+        //             if(t_tmp < t) {
+        //                 shape_chosen = true;
+        //                 shape = middle_shapes[i];
+        //                 normal = n;
+        //                 uv = uv_tmp;
+        //                 t = t_tmp;
+        //             }
+        //         }
+        //     }
+        // }
+        // if(left) {
+        //     for(int i = 0;i < left_shapes.size();i++) {
+        //         if(left_shapes[i]->intersect(ray, n, t_tmp, uv_tmp)) {
+        //             if(t_tmp < t) {
+        //                 shape_chosen = true;
+        //                 shape = left_shapes[i];
+        //                 normal = n;
+        //                 uv = uv_tmp;
+        //                 t = t_tmp;
+        //             }
+        //         }
+        //     }
+        // }
+        // if(right) {
+        //     for(int i = 0;i < right_shapes.size();i++) {
+        //         if(right_shapes[i]->intersect(ray, n, t_tmp, uv_tmp)) {
+        //             if(t_tmp < t) {
+        //                 shape_chosen = true;
+        //                 shape = right_shapes[i];
+        //                 normal = n;
+        //                 uv = uv_tmp;
+        //                 t = t_tmp;
+        //             }
+        //         }
+        //     }
+        // }
+        // return shape_chosen;
+        // t = 9999.0f;
+        // shape_index = -1;
+        // for(int i = 0;i < shapes.size();i++) {
+        //     glm::vec3 tmp_normal;
+        //     float t_tmp;
+        //     glm::vec2 tmp_uv;
+        //     if(shapes[i]->intersect(r0, rd, tmp_normal, t_tmp, tmp_uv)) {
+        //         if(t_tmp < t) {
+        //             t = t_tmp;
+        //             shape_index = i;
+        //             normal = tmp_normal;
+        //             uv = tmp_uv;
+        //         }
+        //     }
+        // }
+        // return shape_index > -1;
     }
 
 private:
@@ -174,8 +296,10 @@ private:
         std::cout << "(" << a.x << "," << a.y << "," << a.z << ")";
     }
 
-    virtual glm::vec3 getColor(int screen_y, int screen_x) = 0;
-    virtual glm::vec3 sample(glm::vec3 r0, glm::vec3 rd, int recursions, float eta1) = 0;
+    Octree* tree;
+
+    virtual glm::vec3 getColor(const int &screen_y, const int &screen_x) = 0;
+    virtual glm::vec3 sample(const Ray &ray, const int &recursions, const float &eta1) = 0;
 };
 
 #endif

@@ -9,7 +9,7 @@
 
 class Material {
 public:
-    Material(int n, float ka, float ks, float k_reflect=0.0f, float k_refract=0.0f, float i_refract=1.003) {
+    Material(const int &n, const float &ka, const float &ks, const float &k_reflect=0.0f, const float &k_refract=0.0f, const float &i_refract=1.003) {
         phong = n;
         ambientStrength = ka;
         specularStrength = ks;
@@ -32,7 +32,7 @@ public:
     float refractiveStrength;
     float indexOfRefraction;
 
-    glm::vec3 getColor(glm::vec3 interPos, glm::vec3 normal, glm::vec3 viewPos, glm::vec2 uv, std::vector<Light*> lights, std::vector<bool> shadows) {
+    glm::vec3 getColor(const glm::vec3 &interPos, const glm::vec3 &normal, const glm::vec3 &viewPos, const glm::vec2 &uv, const std::vector<Light*> &lights, const std::vector<bool> &shadows) {
 
         glm::vec3 objectColor = getObjectColor(interPos);
         glm::vec3 final_light = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -63,11 +63,10 @@ public:
     int getID() {
         return id;
     }
-class Geometry* shape;
 protected:
     int id;
 private:
-    virtual glm::vec3 getObjectColor(glm::vec2 uv) = 0;
+    virtual glm::vec3 getObjectColor(const glm::vec2 &uv) = 0;
     int phong;
     float ambientStrength;
     float specularStrength;

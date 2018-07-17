@@ -116,7 +116,7 @@ public:
         delete mat;
     }
 
-    std::vector<Geometry*> getShapes() {
+    std::vector<Geometry*> getShapes() const{
         return shapes;
 
     }

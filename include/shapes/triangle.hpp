@@ -7,20 +7,20 @@
 
 class Triangle : public Geometry {
 public:
-    Triangle(Material* mat, glm::vec3 a, glm::vec3 b, glm::vec3 c)
+    Triangle(Material* mat, const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c)
         :Geometry(mat) {
         setVerts(a, b, c);
         hasVertexNormals = false;
         init();
     }
-    Triangle(Material* mat, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 an, glm::vec3 bn, glm::vec3 cn)
+    Triangle(Material* mat, const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, const glm::vec3 &an, const glm::vec3 &bn, const glm::vec3 &cn)
         :Geometry(mat) {
         setVerts(a, b, c);
         setNormals(an, bn, cn);
         hasVertexNormals = true;
         init();
     }
-    Triangle(Material* mat, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec2 at, glm::vec2 bt, glm::vec2 ct)
+    Triangle(Material* mat, const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, const glm::vec2 &at, const glm::vec2 &bt, const glm::vec2 &ct)
         :Geometry(mat) {
         setVerts(a, b, c);
         setTextureUV(at, bt, ct);
@@ -28,7 +28,7 @@ public:
         init();
     }
 
-    Triangle(Material* mat, glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 an, glm::vec3 bn, glm::vec3 cn, glm::vec2 at, glm::vec2 bt, glm::vec2 ct)
+    Triangle(Material* mat, const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, const glm::vec3 &an, const glm::vec3 &bn, const glm::vec3 &cn, const glm::vec2 &at, const glm::vec2 &bt, const glm::vec2 &ct)
         :Geometry(mat) {
         setVerts(a, b, c);
         setNormals(an, bn, cn);
@@ -39,27 +39,27 @@ public:
 
     virtual ~Triangle() {}
 
-    bool intersect(glm::vec3 r0, glm::vec3 rd, glm::vec3 &normal, float &t, glm::vec2 &uv) {
-        if(!inBounds(r0, rd)) {
+    bool intersect(const Ray &ray, glm::vec3 &normal, float &t, glm::vec2 &uv) {
+        if(!inBounds(ray)) {
             return false;
         }
         glm::vec3 AB = B - A;
         glm::vec3 AC = C - A;
-        glm::vec3 pvec = glm::cross(rd, AC);
+        glm::vec3 pvec = glm::cross(ray.dir, AC);
         float det = glm::dot(AB, pvec);
 
         if(fabs(det) < 1e-8f){
             return false;
         }
         float invDet = 1.0f / det;
-        glm::vec3 tvec = r0 - A;
+        glm::vec3 tvec = ray.orig - A;
         // float u, v;
         float u = glm::dot(tvec, pvec) * invDet;
         if(u < 0 || u > 1) {
             return false;
         }
         glm::vec3 qvec = glm::cross(tvec, AB);
-        float v = glm::dot(rd, qvec) * invDet;
+        float v = glm::dot(ray.dir, qvec) * invDet;
         if(v < 0 || u + v > 1) {
             return false;
         }
@@ -72,7 +72,7 @@ public:
 
         if(!hasVertexNormals) {
             normal = surfaceNormal;
-            if(glm::dot(rd, normal) >= 0) {
+            if(glm::dot(ray.dir, normal) >= 0) {
                 normal = -normal;
             }
         }
@@ -89,13 +89,13 @@ public:
     }
 
 private:
-    void setVerts(glm::vec3 a, glm::vec3 b, glm::vec3 c) {
+    void setVerts(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c) {
         A = a;B = b;C = c;
     }
-    void setNormals(glm::vec3 a, glm::vec3 b, glm::vec3 c) {
+    void setNormals(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c) {
         An = a;Bn = b;Cn = c;
     }
-    void setTextureUV(glm::vec2 a, glm::vec2 b, glm::vec2 c) {
+    void setTextureUV(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c) {
         Auv = a;Buv = b;Cuv = c;
     }
     void init() {
@@ -104,8 +104,8 @@ private:
     }
 
     void setExtents() {
-        lowExtents = A;
-        highExtents = A;
+        glm::vec3 lowExtents = A;
+        glm::vec3 highExtents = A;
         if(B.x < lowExtents.x) lowExtents.x = B.x;
         if(B.y < lowExtents.y) lowExtents.y = B.y;
         if(B.z < lowExtents.z) lowExtents.z = B.z;
@@ -121,7 +121,7 @@ private:
         if(C.x > highExtents.x) highExtents.x = C.x;
         if(C.y > highExtents.y) highExtents.y = C.y;
         if(C.z > highExtents.z) highExtents.z = C.z;
-
+        bounding_box = BoundingBox(lowExtents, highExtents);
     }
     glm::vec3 A, B, C;
     bool hasVertexNormals;
