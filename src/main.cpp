@@ -8,25 +8,57 @@
 #include <scenes/primary_scene.hpp>
 #include <scenes/secondary_scene.hpp>
 #include <shapes/triangle.hpp>
+#include <scenes/path_tracer.hpp>
 
 #include <model.hpp>
 
 int main(int argc, char** argv) {
     if(argc == 2) {
         Camera cam;
-        Scene* scene = new SecondaryScene(glm::vec3(197.0f, 175.0f, 125.0f)/255.0f, cam, 1280, 720, 60, 5, 1.003f);
+        Scene* scene = new PathTracer(glm::vec3(197.0f, 175.0f, 125.0f)/255.0f, cam, 1290, 720, 60, 5, 1.003f, 100);
 
-        scene->add_model(Model(
-                "resources/dragon.obj",
-                new ColorMaterial(glm::vec3(0.0f, 0.180392f, 0.3647059f), 32, 0.4f, 0.4f),
-                glm::vec3(0.0f, -0.5f, 0.0f),
-                glm::vec3(0.0f, 0.0f, 0.0f),
-                glm::vec3(0.1f, 0.1f, 0.1f)
+        scene->add_shape(new Sphere(
+            new ColorMaterial(glm::vec3(1.0f, 0.0f, 0.0f), 32, 0.4, 0.4),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            0.2f
         ));
+
+        scene->add_shape(new Sphere(
+            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 0.4f, 1.0f),
+            glm::vec3(-0.4f, 0.0f, -0.3f),
+            0.2f
+        ));
+
+        scene->add_shape(new Sphere(
+            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 1.0f, 0.5f, 0.5f),
+            glm::vec3(0.4f, 0.0f, 0.3f),
+            0.2f
+        ));
+
+        scene->add_shape(new Triangle(
+            new ColorMaterial(glm::vec3(1.0f, 1.0f, 1.0f), 32, 0.4, 0.4),
+            glm::vec3(-2.0f, -0.2f, -2.0f),
+            glm::vec3(-2.0f, -0.2f, 2.0f),
+            glm::vec3(2.0f, -0.2f, 2.0f)
+        ));
+        scene->add_shape(new Triangle(
+            new ColorMaterial(glm::vec3(1.0f, 1.0f, 1.0f), 32, 0.4, 0.4),
+            glm::vec3(-2.0f, -0.2f, -2.0f),
+            glm::vec3(2.0f, -0.2f, -2.0f),
+            glm::vec3(2.0f, -0.2f, 2.0f)
+        ));
+
+        // scene->add_model(Model(
+        //         "resources/dragon.obj",
+        //         new ColorMaterial(glm::vec3(0.0f, 0.180392f, 0.3647059f), 32, 0.4f, 0.4f),
+        //         glm::vec3(0.0f, -0.5f, 0.0f),
+        //         glm::vec3(0.0f, 0.0f, 0.0f),
+        //         glm::vec3(0.1f, 0.1f, 0.1f)
+        // ));
 
         scene->add_light(new PointLight(
                 glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(0.0f, 1.0f, 0.0f)
+                glm::vec3(0.5f, 1.0f, 1.0f)
         ));
 
         scene->save(argv[1]);

@@ -21,6 +21,7 @@
 #include <octree.hpp>
 
 #include <opencv2/core.hpp>
+#include <utils.hpp>
 
 
 #define SMALL_NUM   ((float)pow(2, -13))
@@ -112,12 +113,20 @@ protected:
     int max_recursions;
     float initial_eta;
 
-    virtual glm::vec3 reflect(glm::vec3 pt, glm::vec3 rd, glm::vec3 normal, int recursions, float eta1) {
-        rd = glm::reflect(rd, normal);
-        return sample(Ray(pt + rd * SMALL_NUM, rd), recursions + 1, eta1);
+    virtual glm::vec3 diffuse(const glm::vec3 &pt, glm::vec3 rd, const glm::vec3 &normal, const int  &recursions, const float &eta1) {
+        rd = glm::vec3(random_float(-1.0f, 1.0f), random_float(-1.0f, 1.0f), random_float(-1.0f, 1.0f));
+        if(glm::dot(rd, normal) > 0) {
+            rd = -rd;
+        }
+        return sample(Ray(DIFFUSE, pt + rd * SMALL_NUM, rd), recursions + 1, eta1);
     }
 
-    virtual glm::vec3 refract(glm::vec3 pt, glm::vec3 rd, glm::vec3 normal, float eta1, float eta2, int recursions) {
+    virtual glm::vec3 reflect(const glm::vec3 &pt, glm::vec3 rd, const glm::vec3 &normal, const int &recursions, const float &eta1) {
+        rd = glm::reflect(rd, normal);
+        return sample(Ray(REFLECT, pt + rd * SMALL_NUM, rd), recursions + 1, eta1);
+    }
+
+    virtual glm::vec3 refract(const glm::vec3 &pt, glm::vec3 rd, glm::vec3 normal, float eta1, float eta2, const int &recursions) {
         float ndoti = glm::dot(rd, normal);
         if(ndoti < 0) {
             ndoti = -ndoti;
@@ -127,7 +136,7 @@ protected:
         }
         float eta = eta1 / eta2;
         rd = glm::refract(rd, normal, eta);
-        return sample(Ray(pt + rd * SMALL_NUM, rd), recursions + 1, eta2);
+        return sample(Ray(REFRACT, pt + rd * SMALL_NUM, rd), recursions + 1, eta2);
     }
 
     virtual std::vector<bool> inShadow(glm::vec3 r0) {

@@ -28,6 +28,7 @@ public:
     }
     virtual ~Material(){}
 
+    float specularStrength;
     float reflectiveStrength;
     float refractiveStrength;
     float indexOfRefraction;
@@ -69,7 +70,7 @@ private:
     virtual glm::vec3 getObjectColor(const glm::vec2 &uv) = 0;
     int phong;
     float ambientStrength;
-    float specularStrength;
+
 
 
 };
