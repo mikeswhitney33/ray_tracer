@@ -21,6 +21,7 @@
 #include <octree.hpp>
 
 #include <opencv2/core.hpp>
+#include <opencv2/opencv.hpp>
 #include <utils.hpp>
 
 
@@ -88,6 +89,7 @@ public:
             }
             for(int x = 0; x< width;x++) {
                 workers[x].join();
+                bar.tick(false);
             }
             bar.tick();
         }

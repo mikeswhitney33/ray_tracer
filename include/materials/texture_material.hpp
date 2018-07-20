@@ -32,7 +32,6 @@ public:
         delete img_data;
     }
 
-private:
     glm::vec3 getObjectColor(const glm::vec2 &uv) {
         int u = (int)(uv.x * width) % width;
         int v = (int)(uv.y * height) % height;
@@ -44,6 +43,13 @@ private:
         color.z = img_data[idx] / 255;
         return color;
     }
+
+    virtual Material* copy() {
+        return new TextureMaterial(this);
+    }
+
+private:
+
     int width, height, nrChannels;
     unsigned char* img_data;
 };

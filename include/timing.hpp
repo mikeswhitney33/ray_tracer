@@ -73,10 +73,10 @@ public:
     double time_left(double time_take) {
         return (time_take / (double)num_iters) * ((double)num_iters - (double)current_iter);
     }
-    void tick() {
+    void tick(bool progress=true) {
         double elapsed_wall_time = get_wall_time() - wall_start_time;
         double elapsed_cpu_time = get_cpu_time() - cpu_start_time;
-        current_iter++;
+        if(progress) current_iter++;
         std::cout << current_iter << "/" << num_iters << " -- ";
         std::cout << "Wall: ";
         print_time(elapsed_wall_time);

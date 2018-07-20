@@ -5,6 +5,7 @@
 
 #include <lights/directional_light.hpp>
 #include <lights/point_light.hpp>
+#include <lights/area_light.hpp>
 #include <scenes/primary_scene.hpp>
 #include <scenes/secondary_scene.hpp>
 #include <shapes/triangle.hpp>
@@ -15,7 +16,7 @@
 int main(int argc, char** argv) {
     if(argc == 2) {
         Camera cam;
-        Scene* scene = new PathTracer(glm::vec3(197.0f, 175.0f, 125.0f)/255.0f, cam, 1290, 720, 60, 5, 1.003f, 100);
+        Scene* scene = new PathTracer(glm::vec3(197.0f, 175.0f, 125.0f)/255.0f, cam, 512, 512, 60, 3, 1.003f, 32);
 
         scene->add_shape(new Sphere(
             new ColorMaterial(glm::vec3(1.0f, 0.0f, 0.0f), 32, 0.4, 0.4),
@@ -24,13 +25,13 @@ int main(int argc, char** argv) {
         ));
 
         scene->add_shape(new Sphere(
-            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 0.4f, 1.0f),
+            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 1.0f, 1.0f),
             glm::vec3(-0.4f, 0.0f, -0.3f),
             0.2f
         ));
 
         scene->add_shape(new Sphere(
-            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 1.0f, 0.5f, 0.5f),
+            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 1.0f, 0.0f, 0.5f),
             glm::vec3(0.4f, 0.0f, 0.3f),
             0.2f
         ));
@@ -48,6 +49,27 @@ int main(int argc, char** argv) {
             glm::vec3(2.0f, -0.2f, 2.0f)
         ));
 
+
+        // glm::vec3(-2.0f, -0.2f, -2.0f),
+        // glm::vec3(-2.0f, -0.2f, 2.0f),
+        // glm::vec3(2.0f, -0.2f, 2.0f)
+        scene->add_shape(new Triangle(
+            new ColorMaterial(glm::vec3(0.0f, 0.0f, 1.0f), 32, 0.8f, 0.4f, 0.2f),
+            glm::vec3(-2.0f, -0.2f, -2.0f),
+            glm::vec3(-2.0f, 2.0f, -2.0f),
+            glm::vec3(2.0f, 2.0f, -2.0f)
+        ));
+
+        // glm::vec3(-2.0f, -0.2f, -2.0f),
+        // glm::vec3(2.0f, -0.2f, -2.0f),
+        // glm::vec3(2.0f, -0.2f, 2.0f)
+        scene->add_shape(new Triangle(
+            new ColorMaterial(glm::vec3(0.0f, 0.0f, 1.0f), 32, 0.8f, 0.4f, 0.2f),
+            glm::vec3(-2.0f, -0.2f, -2.0f),
+            glm::vec3(2.0f, -0.2f, -2.0f),
+            glm::vec3(2.0f, 2.0f, -2.0f)
+        ));
+
         // scene->add_model(Model(
         //         "resources/dragon.obj",
         //         new ColorMaterial(glm::vec3(0.0f, 0.180392f, 0.3647059f), 32, 0.4f, 0.4f),
@@ -56,7 +78,12 @@ int main(int argc, char** argv) {
         //         glm::vec3(0.1f, 0.1f, 0.1f)
         // ));
 
-        scene->add_light(new PointLight(
+        scene->add_light(new AreaLight(
+                glm::vec3(1.0f, 1.0f, 1.0f),
+                glm::vec3(-1.0f, 1.0f, -1.0f),
+                glm::vec3(1.0f, 1.0f, 1.0f)
+        ));
+        scene->add_light(new DirectionalLight(
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 glm::vec3(0.5f, 1.0f, 1.0f)
         ));

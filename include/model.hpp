@@ -12,13 +12,13 @@
 #include <vector>
 #include <materials/color_material.hpp>
 #include <shapes/triangle.hpp>
-#include <material_factory.hpp>
+// #include <material_factory.hpp>
 
 
 class Model {
 public:
     Model(const char* filename, Material* mat, glm::vec3 loc, glm::vec3 rot, glm::vec3 s=glm::vec3(1.0f, 1.0f, 1.0f)) {
-        MaterialFactory factory;
+        // MaterialFactory factory;
 
         glm::mat4 trans(1);
         trans = glm::translate(trans, loc);
@@ -42,7 +42,8 @@ public:
             aiMesh* mesh = scene->mMeshes[i];
             aiVector3D* verts = mesh->mVertices;
             for(int j = 0;j < mesh->mNumFaces;j++) {
-                Material* new_mat = factory.create(mat);
+                Material* new_mat = mat->copy();
+                // Material* new_mat = factory.create(mat);
                 // std::cout << "Face: " << j << "/" << mesh->mNumFaces << std::endl;
                 aiFace face = mesh->mFaces[j];
 

@@ -28,12 +28,14 @@ public:
     }
     virtual ~Material(){}
 
+    float ambientStrength;
+
     float specularStrength;
     float reflectiveStrength;
     float refractiveStrength;
     float indexOfRefraction;
 
-    glm::vec3 getColor(const glm::vec3 &interPos, const glm::vec3 &normal, const glm::vec3 &viewPos, const glm::vec2 &uv, const std::vector<Light*> &lights, const std::vector<bool> &shadows) {
+    virtual glm::vec3 getColor(const glm::vec3 &interPos, const glm::vec3 &normal, const glm::vec3 &viewPos, const glm::vec2 &uv, const std::vector<Light*> &lights, const std::vector<bool> &shadows) {
 
         glm::vec3 objectColor = getObjectColor(interPos);
         glm::vec3 final_light = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -61,15 +63,18 @@ public:
         return final_light * objectColor;
     }
 
+    virtual Material* copy() = 0;
+
     int getID() {
         return id;
     }
+
+    virtual glm::vec3 getObjectColor(const glm::vec2 &uv) = 0;
+
 protected:
     int id;
 private:
-    virtual glm::vec3 getObjectColor(const glm::vec2 &uv) = 0;
     int phong;
-    float ambientStrength;
 
 
 

@@ -18,11 +18,16 @@ public:
 
     virtual ~ColorMaterial(){}
 
-private:
-    glm::vec3 color;
     glm::vec3 getObjectColor(const glm::vec2 &uv) {
         return color;
     }
+
+    virtual Material* copy() {
+        return new ColorMaterial(this);
+    }
+private:
+    glm::vec3 color;
+
 };
 
 #endif
