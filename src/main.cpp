@@ -18,21 +18,24 @@ int main(int argc, char** argv) {
         Camera cam;
         Scene* scene = new PathTracer(glm::vec3(197.0f, 175.0f, 125.0f)/255.0f, cam, 512, 512, 60, 3, 1.003f, 32);
 
+        // Red ball
         scene->add_shape(new Sphere(
             new ColorMaterial(glm::vec3(1.0f, 0.0f, 0.0f), 32, 0.4, 0.4),
             glm::vec3(0.0f, 0.0f, 0.0f),
             0.2f
         ));
 
+        // Reflective Ball
         scene->add_shape(new Sphere(
             new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 1.0f, 1.0f),
             glm::vec3(-0.4f, 0.0f, -0.3f),
             0.2f
         ));
 
-        scene->add_shape(new Sphere(
-            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 1.0f, 0.0f, 0.5f),
-            glm::vec3(0.4f, 0.0f, 0.3f),
+        // Refractive Ball
+        scene->add_shape(new Sphere(// color               n    ka    ks   reflect  refract
+            new ColorMaterial(glm::vec3(0.4f, 0.4f, 0.4f), 32, 0.4f, 1.0f, 0.0f, 0.5f, 1.5f),
+            glm::vec3(0.3f, 0.0f, 0.3f),
             0.2f
         ));
 
@@ -49,10 +52,6 @@ int main(int argc, char** argv) {
             glm::vec3(2.0f, -0.2f, 2.0f)
         ));
 
-
-        // glm::vec3(-2.0f, -0.2f, -2.0f),
-        // glm::vec3(-2.0f, -0.2f, 2.0f),
-        // glm::vec3(2.0f, -0.2f, 2.0f)
         scene->add_shape(new Triangle(
             new ColorMaterial(glm::vec3(0.0f, 0.0f, 1.0f), 32, 0.8f, 0.4f, 0.2f),
             glm::vec3(-2.0f, -0.2f, -2.0f),
@@ -60,9 +59,6 @@ int main(int argc, char** argv) {
             glm::vec3(2.0f, 2.0f, -2.0f)
         ));
 
-        // glm::vec3(-2.0f, -0.2f, -2.0f),
-        // glm::vec3(2.0f, -0.2f, -2.0f),
-        // glm::vec3(2.0f, -0.2f, 2.0f)
         scene->add_shape(new Triangle(
             new ColorMaterial(glm::vec3(0.0f, 0.0f, 1.0f), 32, 0.8f, 0.4f, 0.2f),
             glm::vec3(-2.0f, -0.2f, -2.0f),
@@ -78,12 +74,12 @@ int main(int argc, char** argv) {
         //         glm::vec3(0.1f, 0.1f, 0.1f)
         // ));
 
-        scene->add_light(new AreaLight(
+        scene->add_shape(new AreaLight(
                 glm::vec3(1.0f, 1.0f, 1.0f),
-                glm::vec3(-1.0f, 1.0f, -1.0f),
-                glm::vec3(1.0f, 1.0f, 1.0f)
+                glm::vec3(-0.25f, 1.0f, -0.25f),
+                glm::vec3(0.25f, 1.0f, 0.25f)
         ));
-        scene->add_light(new DirectionalLight(
+        scene->add_shape(new DirectionalLight(
                 glm::vec3(1.0f, 1.0f, 1.0f),
                 glm::vec3(0.5f, 1.0f, 1.0f)
         ));

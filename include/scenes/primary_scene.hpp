@@ -60,12 +60,12 @@ private:
         glm::vec2 uv;
         Geometry* shape;
         if(intersect(ray, t, normal, uv, shape)) {
-            Material* mat = shape->material;
+            const Material* mat = shape->material;
             std::vector<bool> shadows;
             for(int i = 0;i < lights.size();i++) {
                 shadows.push_back(false);
             }
-            return mat->getColor(ray.eval(t), normal, ray.dir, uv, lights, shadows);
+            return illuminate(mat, ray.eval(t), normal, ray.dir, uv, shadows);
         }
         else {
             return backgroundColor;

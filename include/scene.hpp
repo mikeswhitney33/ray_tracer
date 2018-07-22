@@ -25,7 +25,7 @@
 #include <utils.hpp>
 
 
-#define SMALL_NUM   ((float)pow(2, -13))
+#define SMALL_NUM ((float)pow(2, -13))
 
 
 class Scene {
@@ -48,14 +48,17 @@ public:
     }
 
     virtual ~Scene() {
-        for(int i = 0;i < lights.size();i++) {
-            delete lights[i];
-        }
+        // for(int i = 0;i < lights.size();i++) {
+        //     delete lights[i];
+        // }
         delete tree;
     }
 
     void add_shape(Geometry* shape) {
         tree->add_shape(shape);
+        if(shape->isLight()) {
+            lights.push_back(static_cast<Light*>(shape));
+        }
     }
 
 
@@ -66,9 +69,9 @@ public:
         }
     }
 
-    void add_light( Light* light) {
-        lights.push_back(light);
-    }
+    // void add_light( Light* light) {
+    //     lights.push_back(light);
+    // }
 
     static void set_color(Scene* context, int y, int x, cv::Mat m) {
         glm::vec3 color = 255.0f * context->getColor(y, x);
@@ -167,6 +170,33 @@ protected:
         return tree->intersect(ray, normal, t, uv, shape);
     }
 
+    virtual glm::vec3 illuminate(const Material* &mat, const glm::vec3 &interPos, const glm::vec3 &normal, const glm::vec3 &viewPos, const glm::vec2 &uv, const std::vector<bool> &shadows) {
+        glm::vec3 objectColor = mat->getObjectColor(interPos);
+        glm::vec3 final_light = glm::vec3(0.0f, 0.0f, 0.0f);
+        for(int i = 0;i < lights.size();i++) {
+            if(!shadows[i]) {
+                Light* light = lights[i];
+                glm::vec3 lightColor = light->getColor();
+
+
+                glm::vec3 ambient = mat->ambientStrength * lightColor;
+
+                glm::vec3 norm = glm::normalize(normal);
+                glm::vec3 lightDir = glm::normalize(light->getDirection(interPos));
+                float diff = std::max(glm::dot(norm, lightDir), 0.0f);
+                glm::vec3 diffuse = diff * lightColor;
+
+                glm::vec3 viewDir = glm::normalize(viewPos - interPos);
+                glm::vec3 reflectDir = glm::reflect(-lightDir, norm);
+                float spec = pow(std::max(glm::dot(viewDir, reflectDir), 0.0f), mat->phong);
+                glm::vec3 specular = mat->specularStrength * spec * lightColor;
+
+                final_light += (ambient + diffuse + specular);
+            }
+        }
+        return final_light * objectColor;
+    }
+
 private:
     void print_vec3(glm::vec3 a) {
         std::cout << "(" << a.x << "," << a.y << "," << a.z << ")";
@@ -176,6 +206,11 @@ private:
 
     virtual glm::vec3 getColor(const int &screen_y, const int &screen_x) = 0;
     virtual glm::vec3 sample(const Ray &ray, const int &recursions, const float &eta1) = 0;
+
+
+
 };
+
+
 
 #endif

@@ -70,6 +70,10 @@ public:
      */
     Material* material;
 
+    virtual bool isLight() {
+        return false;
+    }
+
     /*
      * Data Member: bounding_box
      * -------------------------

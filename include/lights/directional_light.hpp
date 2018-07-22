@@ -17,8 +17,14 @@ public:
         return 999999.0f;
     }
 
+    bool intersect(
+        const Ray &ray, glm::vec3 &normal, float &t, glm::vec2 &uv) {
+            return false;
+        }
+
 private:
     glm::vec3 direction;
+    void setExtents() {}
 };
 
 #endif

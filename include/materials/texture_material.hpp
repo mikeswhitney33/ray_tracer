@@ -15,7 +15,6 @@ public:
         nrChannels = img.channels();
         img_data = new unsigned char[width * height * nrChannels];
         memcpy(img_data, img.data, width * height * nrChannels);
-        id = 1;
         img.release();
     }
 
@@ -26,13 +25,12 @@ public:
         nrChannels = t_mat->nrChannels;
         img_data = new unsigned char[width * height * nrChannels];
         memcpy(img_data, t_mat->img_data, width * height * nrChannels);
-        id = t_mat->id;
     }
     virtual ~TextureMaterial() {
         delete img_data;
     }
 
-    glm::vec3 getObjectColor(const glm::vec2 &uv) {
+    glm::vec3 getObjectColor(const glm::vec2 &uv) const {
         int u = (int)(uv.x * width) % width;
         int v = (int)(uv.y * height) % height;
         int idx = (v * height + u) * nrChannels;

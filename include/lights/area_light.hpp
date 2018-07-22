@@ -20,9 +20,14 @@ public:
         glm::vec3 pt(x, y, z);
         return glm::distance(pt, pos);
     }
+    bool intersect(
+            const Ray &ray, glm::vec3 &normal, float &t, glm::vec2 &uv) {
+                return bounding_box.intersect(ray);
+            }
 
 private:
     BoundingBox bounding_box;
+    void setExtents() {}
 };
 
 

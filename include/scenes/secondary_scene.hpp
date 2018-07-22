@@ -69,12 +69,12 @@ private:
         Geometry* shape;
         if(recursions < max_recursions &&
             intersect(ray, t, normal, uv, shape)) {
-            Material* mat = shape->material;
+            const Material* mat = shape->material;
             glm::vec3 inter = ray.eval(t);
             std::vector<bool> shadows = inShadow(inter);
 
-            glm::vec3 matColor = mat->getColor(
-                inter, normal, ray.dir, uv, lights, inShadow(inter));
+            glm::vec3 matColor = illuminate(
+                mat, inter, normal, ray.dir, uv, inShadow(inter));
             normal = glm::normalize(normal);
 
             if(mat->reflectiveStrength > 0) {

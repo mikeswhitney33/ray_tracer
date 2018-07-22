@@ -17,7 +17,14 @@ public:
         return glm::distance(point, pos);
     }
 
+    bool intersect(
+        const Ray &ray, glm::vec3 &normal, float &t, glm::vec2 &uv) {
+            return false;
+        }
+
+
 private:
+    void setExtents() {}
     glm::vec3 point;
 };
 
