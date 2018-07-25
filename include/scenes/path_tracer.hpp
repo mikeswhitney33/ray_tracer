@@ -48,19 +48,34 @@ private:
             glm::vec3 secondary_color;
 
             int N = num_paths / (recursions + 1);
+            float pdf, r1, r2;
+
+            glm::vec3 Nt, Nb;
+            if(fabs(normal.x) > fabs(normal.y)) {
+                Nt = glm::vec3(normal.z, 0, -normal.x) / sqrtf(normal.x * normal.x + normal.z * normal.z);
+            }
+            else {
+                Nt = glm::vec3(0, -normal.z, normal.y) / sqrtf(normal.y * normal.y + normal.z * normal.z);
+            }
+            Nb = glm::cross(normal, Nt);
+
+            pdf = 1 / (2 * M_PI);
+
             for(int i = 0;i < N;i++) {
-                float chance = random_float(0, diffusek + reflectk + refractk);
+                float chance = randf(diffusek + reflectk + refractk);
+                r1 = randf();
+                r2 = randf();
                 if(chance <= diffusek) {
-                    //Send diffuse ray
-                    secondary_color += diffuse(pt, ray.dir, normal, recursions, eta1);
+                    // Send diffuse ray
+                    secondary_color += r1 * diffuse(pt, ray.dir, normal, recursions, eta1, Nt, Nb, r1, r2) / pdf;
                 }
-                else if(chance <= diffusek + reflectk) {
-                    // Send reflect Ray
-                    secondary_color += reflect(pt, ray.dir, normal, recursions, eta1);
-                }
+                // else if(chance <= diffusek + reflectk) {
+                //     // Send reflect Ray
+                //     secondary_color += reflect(pt, ray.dir, normal, recursions, eta1);
+                // }
                 else {
                     // Send Refract Ray
-                    secondary_color += refract(pt, ray.dir, normal, eta1, mat->indexOfRefraction, recursions);
+                    secondary_color += r1 * refract(pt, ray.dir, normal, eta1, mat->indexOfRefraction, recursions) / pdf;
                 }
             }
             secondary_color /= (float)N;

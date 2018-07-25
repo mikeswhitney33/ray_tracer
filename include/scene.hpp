@@ -74,7 +74,11 @@ public:
     // }
 
     static void set_color(Scene* context, int y, int x, cv::Mat m) {
-        glm::vec3 color = 255.0f * context->getColor(y, x);
+        glm::vec3 color = context->getColor(y, x);
+        float mx = glm::compMax(color);
+        float mn = glm::compMin(color);
+        color = (color - mn) / (mx - mn);
+        color *= 255;
         m.at<cv::Vec3f>(y, x).val[2] = color.x;
         m.at<cv::Vec3f>(y, x).val[1] = color.y;
         m.at<cv::Vec3f>(y, x).val[0] = color.z;
@@ -92,7 +96,6 @@ public:
             }
             for(int x = 0; x< width;x++) {
                 workers[x].join();
-                bar.tick(false);
             }
             bar.tick();
         }
@@ -118,11 +121,21 @@ protected:
     int max_recursions;
     float initial_eta;
 
-    virtual glm::vec3 diffuse(const glm::vec3 &pt, glm::vec3 rd, const glm::vec3 &normal, const int  &recursions, const float &eta1) {
-        rd = glm::vec3(random_float(-1.0f, 1.0f), random_float(-1.0f, 1.0f), random_float(-1.0f, 1.0f));
-        if(glm::dot(rd, normal) > 0) {
-            rd = -rd;
-        }
+    glm::vec3 uniform_sample_hemisphere(const float &r1, const float &r2) {
+        float sinTheta = sqrtf(1 - r1 * r2);
+        float phi = 2 * M_PI * r2;
+        float x = sinTheta * cosf(phi);
+        float z = sinTheta * sinf(phi);
+        return glm::vec3(x, r1, z);
+    }
+
+    virtual glm::vec3 diffuse(const glm::vec3 &pt, glm::vec3 rd, const glm::vec3 &normal, const int  &recursions, const float &eta1, const glm::vec3 &Nt, const glm::vec3 &Nb, const float &r1, const float &r2) {
+        glm::vec3 sam = uniform_sample_hemisphere(r1, r2);
+
+        rd = glm::vec3(
+            sam.x * Nb.x + sam.y * normal.x + sam.z * Nt.x,
+            sam.x * Nb.y + sam.y * normal.y + sam.z * Nt.y,
+            sam.x * Nb.z + sam.y * normal.z + sam.z * Nt.z);
         return sample(Ray(DIFFUSE, pt + rd * SMALL_NUM, rd), recursions + 1, eta1);
     }
 
