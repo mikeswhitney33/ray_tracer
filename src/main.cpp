@@ -1,181 +1,109 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
 #include <limits>
 
-#include "../geometry/vec3.hpp"
-#include "../geometry/shapes.hpp"
+#include "../headers/geometry/vec3.hpp"
+#include "../headers/factories/material-factory.hpp"
+#include "../headers/factories/shape-factory.hpp"
 
-#define deg2rad(deg) deg * M_PI / 180.0f
-#define NUM_SHAPES 17
 
-std::vector<Shape*> shapes(NUM_SHAPES);
+#define clamp(x) (x < 0 ? 0 : x > 1 ? 1 : x)
+#define toInt(x) (int(pow(clamp(x), 1 / 2.2) * 255 + 0.5))
+#define NUM_SHAPES 9
 
-void initShapes() {
-    // back
-    shapes[0] = new Triangle(vec3(), vec3(0.75, 0.75, 0.75), DIFF, vec3(-500, -500, 500), vec3(-500, 500, 500), vec3(500, 500, 500));
-    shapes[1] = new Triangle(vec3(), vec3(0.75, 0.75, 0.75), DIFF, vec3(-500, -500, 500), vec3(500, -500, 500), vec3(500, 500, 500));
-    //front
-    shapes[2] = new Triangle(vec3(), vec3(0.25, 0.25, 0.25), DIFF, vec3(-500, -500, -500), vec3(-500, 500, -500), vec3(500, 500, -500));
-    shapes[3] = new Triangle(vec3(), vec3(0.25, 0.25, 0.25), DIFF, vec3(-500, -500, -500), vec3(500, -500, -500), vec3(500, 500, -500));
-    // left
-    shapes[4] = new Triangle(vec3(), vec3(0.75, 0.25, 0.25), DIFF, vec3(-500, -500, -500), vec3(-500, 500, -500), vec3(-500, 500, 500));
-    shapes[5] = new Triangle(vec3(), vec3(0.75, 0.25, 0.25), DIFF, vec3(-500, -500, -500), vec3(-500, -500, 500), vec3(-500, 500, 500));
-    // right
-    shapes[6] = new Triangle(vec3(), vec3(0.25, 0.25, 0.75), DIFF, vec3(500, -500, -500), vec3(500, 500, -500), vec3(500, 500, 500));
-    shapes[7] = new Triangle(vec3(), vec3(0.25, 0.25, 0.75), DIFF, vec3(500, -500, -500), vec3(500, -500, 500), vec3(500, 500, 500));
-    // top
-    shapes[8] = new Triangle(vec3(), vec3(0.75, 0.75, 0.75), DIFF, vec3(-500, 500, -500), vec3(500, 500, -500), vec3(500, 500, 500));
-    shapes[9] = new Triangle(vec3(), vec3(0.75, 0.75, 0.75), DIFF, vec3(-500, 500, -500), vec3(-500, 500, 500), vec3(500, 500, 500));
-    // bottom
-    shapes[10] = new Triangle(vec3(), vec3(0.75, 0.75, 0.75), DIFF, vec3(-500, -500, -500), vec3(500, -500, -500), vec3(500, -500, 500));
-    shapes[11] = new Triangle(vec3(), vec3(0.75, 0.75, 0.75), DIFF, vec3(-500, -500, -500), vec3(-500, -500, 500), vec3(500, -500, 500));
-    // light
-    shapes[12] = new Triangle(vec3(12, 12, 12), vec3(), DIFF, vec3(-75, 490, 150), vec3(75, 490, 150), vec3(75, 490, 300));
-    shapes[13] = new Triangle(vec3(12, 12, 12), vec3(), DIFF, vec3(-75, 490, 150), vec3(-75, 490, 300), vec3(75, 490, 300));
-    // Mirror
-    shapes[14] = new Sphere(vec3(), vec3(0.999, 0.999, 0.999), SPEC, vec3(-350, -500 + 100, 350), 100);
-    // Glass
-    shapes[15] = new Sphere(vec3(), vec3(0.999, 0.999, 0.999), SPEC, vec3(350, -500 + 100, 300), 100);
-    shapes[16] = new Sphere(vec3(), vec3(0.75, 0.25, 0.25), DIFF, vec3(0, 0, -1000), 500);
-}
 
-void freeShapes() {
-    for(auto& shape : shapes) {
-        delete shape;
-    }
-}
+Shape* shapes[NUM_SHAPES] = {
+    makeSphere(makeDiffuseMaterial(vec3(0.75, 0.25, 0.25), vec3()), vec3( 1e5+1,40.8,81.6), 1e5),
+    makeSphere(makeDiffuseMaterial(vec3(0.25, 0.25, 0.75), vec3()), vec3(-1e5+99,40.8,81.6), 1e5),
+    makeSphere(makeDiffuseMaterial(vec3(0.75, 0.75, 0.75), vec3()), vec3(50, 40.8, 1e5), 1e5),
+    makeSphere(makeDiffuseMaterial(vec3(), vec3()), vec3(50, 40.8, -1e5+170), 1e5),
+    makeSphere(makeDiffuseMaterial(vec3(0.75, 0.75, 0.75), vec3()), vec3(50, 1e5, 81.6), 1e5),
+    makeSphere(makeDiffuseMaterial(vec3(0.75, 0.75, 0.75), vec3()), vec3(50, -1e5+81.6, 81.6), 1e5),
+    makeSphere(makeSpecularMaterial(vec3(0.999, 0.999, 0.999), vec3()), vec3(27, 16.5, 47), 16.5),
+    makeSphere(makeRefractiveMaterial(vec3(0.999, 0.999, 0.999), vec3()), vec3(73, 16.5, 78), 16.5),
+    makeSphere(makeDiffuseMaterial(vec3(), vec3(12, 12, 12)), vec3(50, 681.6-0.27, 81.6), 600)
+};
 
-int intersect(const vec3 &ray_orig, const vec3 &ray_dir, float &min_t) {
-    int shapeId = -1;
-    for(int i = 0;i < shapes.size();i++) {
-        Shape* shape = shapes[i];
-        if(shape->intersect(ray_orig, ray_dir, min_t)) {
-            shapeId = i;
+inline bool intersect(const vec3 &ro, const vec3 &rd, double &t, int &id) {
+    double d;
+    t = std::numeric_limits<double>::max();
+    id = -1;
+    for(int i=NUM_SHAPES;i--;) {
+        d = shapes[i]->intersect(ro, rd);
+        if(d && d < t){
+            t=d;
+            id=i;
         }
     }
-    return shapeId;
-}
-
-void createCoordinateSystem(const vec3 &N, vec3 &Nt, vec3 &Nb) {
-    if(fabs(N.x) > fabs(N.y)) {
-        Nt = vec3(N.z, 0, -N.x) / sqrtf(N.x * N.x + N.z * N.z);
-    }
-    else {
-        Nt = vec3(0, -N.z, N.y) / sqrtf(N.y * N.y + N.z * N.z);
-    }
-    Nb = cross(N, Nt);
-}
-
-vec3 uniformSampleHemisphere(const float &r1, const float &r2) {
-    float sinTheta = sqrtf(1 - r1 * r1);
-    float phi = 2 * M_PI * r2;
-    float x = sinTheta * cosf(phi);
-    float z = sinTheta * sinf(phi);
-    return vec3(x, r1, z);
+    return id > -1;
 }
 
 
-vec3 trace_ray(const vec3 &ray_orig, const vec3 &ray_dir, int depth) {
-    if(depth > 5) {
+vec3 radiance(const vec3 &ro, const vec3 &rd, int depth){
+    double t;
+    int id;
+    if (!intersect(ro, rd, t, id)) {
         return vec3();
     }
-    float t = std::numeric_limits<float>::max();
-    int shapeId = intersect(ray_orig, ray_dir, t);
-    if(shapeId < 0) return vec3();
-    Shape* shape = shapes[shapeId];
-
-    vec3 pt = ray_orig + ray_dir * t;
-    vec3 normal = shape->getNormal(ray_dir, pt);
-    vec3 nl = dot(normal, ray_dir) < 0 ? normal : -1.0f * normal;
-    vec3 color = shape->getColor();
-    float p = max(color);
-    if(++depth > 5) {
+    const Shape* obj = shapes[id];
+    const Material* mat = obj->getMat();
+    vec3 pt = ro + rd * t;
+    vec3 n = obj->getNormal(rd, pt);
+    vec3 nl = dot(n, rd) < 0 ? n : n * -1;
+    vec3 f = mat->getColor();
+    double p = max(f);
+    if (++depth > 5) {
         if(drand48() < p) {
-            color *= (1.0f/p);
+            f = f * (1 / p);
         }
         else {
-            return shape->getEmission();
+            return mat->getEmission();
         }
     }
-    if(shape->getMat() == DIFF) {
-        vec3 sample;
-        {
-            float r1 = drand48(), r2 = drand48();
-            float sinTheta = sqrtf(1 - r1 * r2);
-            float phi = 2 * M_PI * r2;
-            float x = sinTheta * cosf(phi);
-            float z = sinTheta * sinf(phi);
-            sample = vec3(x, r1, z);
-        }
-        vec3 Nt, Nb;
-        {
-            if(fabs(normal.x) > fabs(normal.y)) {
-                Nt = vec3(normal.z, 0, -normal.x) / sqrtf(normal.x * normal.x + normal.z * normal.z);
-            }
-            else {
-                Nt = vec3(0, -normal.z, normal.y) / sqrtf(normal.y * normal.y + normal.z * normal.z);
-            }
-            Nb = cross(normal, Nt);
-        }
-        vec3 new_dir = vec3(
-            sample.x * Nb.x + sample.y * normal.x + sample.z * Nt.x,
-            sample.x * Nb.y + sample.y * normal.y + sample.z * Nt.y,
-            sample.x * Nb.z + sample.y * normal.z + sample.z * Nt.z);
-        new_dir -= pt;
-        return shape->getEmission() + color * trace_ray(pt + new_dir * EPS, norm(new_dir), depth);
-
-    // virtual glm::vec3 diffuse(const glm::vec3 &pt, glm::vec3 rd, const glm::vec3 &normal, const int  &recursions, const float &eta1, const glm::vec3 &Nt, const glm::vec3 &Nb, const float &r1, const float &r2) {
-    //     glm::vec3 sam = uniform_sample_hemisphere(r1, r2);
-
-    //     rd = glm::vec3(
-    //         sam.x * Nb.x + sam.y * normal.x + sam.z * Nt.x,
-    //         sam.x * Nb.y + sam.y * normal.y + sam.z * Nt.y,
-    //         sam.x * Nb.z + sam.y * normal.z + sam.z * Nt.z);
-    //     return sample(Ray(DIFFUSE, pt + rd * SMALL_NUM, rd), recursions + 1, eta1);
-    // }
-        // float r1 = 2 * M_PI * drand48();
-        // float r2 = drand48();
-        // float r2s = sqrtf(r2);
-        // vec3 w = nl;
-        // vec3 u = norm(cross(fabs(w.x) > .1 ? vec3(0, 1) : vec3(1), w));
-        // vec3 v = cross(w, u);
-        // vec3 d = norm(u * cosf(r1) * r2s + v * sinf(r1) * r2s + w * sqrtf(1 - r2));
-        // return shape->getEmission() + color * trace_ray(pt, d, depth);
-    }
-    else if(shape->getMat() == SPEC) {
-        return shape->getEmission() + color * trace_ray(pt, reflect(ray_dir, normal), depth);
-    }
-
-    return vec3();
+    return mat->getEmission() + f * mat->incoming(pt, rd, n, nl, depth, radiance);
 }
 
-int main(int argc, char** argv) {
-    initShapes();
-    int width = 300, height = 200;
-    int num_samples = 20;
-    float fov = 90.0f;
-    float scale = tanf(deg2rad(fov * 0.5f));
-    float aspect = static_cast<float>(width) / static_cast<float>(height);
-    std::ofstream f("out.ppm");
-    f << "P3\n" << width << " " << height << "\n255\n";
-    vec3 ray_orig(0, 0, -450);
-    for(int screen_y = 0;screen_y < height;screen_y++) {
-        std::fprintf(stderr, "\r (%d SPP) %5.2f%%  ", num_samples, 100.0f * ((screen_y+1)/static_cast<float>(height)));
-        // std::cout << "\r  (" << num_samples << " SPP) " <<  << "      " << std::flush;
-        for(int screen_x = 0;screen_x < width;screen_x++) {
-            float x = (2.0f * (static_cast<float>(screen_x) + 0.5f) / static_cast<float>(width) - 1.0f) * scale * aspect;
-            float y = (1 - 2.0f * (static_cast<float>(screen_y) + 0.5f) / static_cast<float>(height)) * scale;
-            vec3 ray_dir = norm(vec3(x, y, ray_orig.z + 1) - ray_orig);
-            vec3 color;
-            for(int i = 0;i < num_samples;i++) {
-                color += (trace_ray(ray_orig, ray_dir, 0) / static_cast<float>(num_samples));
+int main(int argc, char *argv[]) {
+    int screen_width = 1024;
+    int screen_height = 768;
+    int samps = 1;
+    if(argc == 2) {
+        samps = atoi(argv[1]) / 4;
+    }
+    vec3 camo(50, 52, 295.6);
+    vec3 camd = vec3(0, -0.042612, -1).norm();
+    vec3 cx = vec3(screen_width * 0.5135 / screen_height);
+    vec3 cy = cross(cx, camd).norm() * .5135;
+    vec3 r;
+    vec3 *c = new vec3[screen_width * screen_height];
+#pragma omp parallel for schedule(dynamic, 1) private(r)
+    for (int screen_y = 0; screen_y < screen_height; screen_y++){
+        fprintf(stderr, "\rRendering (%d spp) %5.2f%%", samps * 4, 100. * screen_y / (screen_height - 1));
+        for (unsigned short screen_x = 0; screen_x < screen_width; screen_x++) {
+            for (int sy=0, i=(screen_height - screen_y - 1) * screen_width + screen_x; sy<2; sy++) {
+                for (int sx=0; sx<2; sx++, r=vec3()) {
+                    for (int s=0; s<samps; s++) {
+                        double r1 = 2.0 * drand48();
+                        double dx = r1 < 1.0 ? sqrt(r1) - 1.0 : 1.0 - sqrt(2 - r1);
+                        double r2 = 2 * drand48();
+                        double dy = r2 < 1.0 ? sqrt(r2) - 1.0 : 1.0 - sqrt(2 - r2);
+                        vec3 d = cx * (((sx + 0.5 + dx) / 2 + screen_x) / screen_width - 0.5) +
+                                cy * (((sy + .5 + dy) / 2 + screen_y) / screen_height - 0.5) + camd;
+                        r = r + radiance(camo + d * 140, d.norm(), 0) * (1.0 / samps);
+                    }
+                    c[i] = c[i] + vec3(clamp(r.x), clamp(r.y), clamp(r.z)) * 0.25;
+                }
             }
-            f << toPixel(color);
         }
     }
-    std::cout << std::endl;
-    f.close();
-    freeShapes();
-    return 0;
+    FILE *f = fopen("image.ppm", "w");
+    fprintf(f, "P3\n%d %d\n%d\n", screen_width, screen_height, 255);
+    for (int i = 0; i < screen_width * screen_height; i++) {
+        fprintf(f,"%d %d %d ", toInt(c[i].x), toInt(c[i].y), toInt(c[i].z));
+    }
+
+    for(int i = 0;i < NUM_SHAPES;i++) {
+        delete shapes[i];
+    }
 }
