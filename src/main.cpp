@@ -1,19 +1,6 @@
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-#include <limits>
+#include "../headers/largept.hpp"
 
-#include "../headers/geometry/vec3.hpp"
-#include "../headers/factories/material-factory.hpp"
-#include "../headers/factories/shape-factory.hpp"
-
-
-#define clamp(x) (x < 0 ? 0 : x > 1 ? 1 : x)
-#define toInt(x) (int(pow(clamp(x), 1 / 2.2) * 255 + 0.5))
-#define NUM_SHAPES 9
-
-
-Shape* shapes[NUM_SHAPES] = {
+const Shape* shapes[NUM_SHAPES] = {
     makeSphere(makeDiffuseMaterial(vec3(0.75, 0.25, 0.25), vec3()), vec3( 1e5+1,40.8,81.6), 1e5),
     makeSphere(makeDiffuseMaterial(vec3(0.25, 0.25, 0.75), vec3()), vec3(-1e5+99,40.8,81.6), 1e5),
     makeSphere(makeDiffuseMaterial(vec3(0.75, 0.75, 0.75), vec3()), vec3(50, 40.8, 1e5), 1e5),
@@ -22,10 +9,10 @@ Shape* shapes[NUM_SHAPES] = {
     makeSphere(makeDiffuseMaterial(vec3(0.75, 0.75, 0.75), vec3()), vec3(50, -1e5+81.6, 81.6), 1e5),
     makeSphere(makeSpecularMaterial(vec3(0.999, 0.999, 0.999), vec3()), vec3(27, 16.5, 47), 16.5),
     makeSphere(makeRefractiveMaterial(vec3(0.999, 0.999, 0.999), vec3()), vec3(73, 16.5, 78), 16.5),
-    makeSphere(makeDiffuseMaterial(vec3(), vec3(12, 12, 12)), vec3(50, 681.6-0.27, 81.6), 600)
+    makeSphere(makeDiffuseMaterial(vec3(), vec3(12, 12, 12 )), vec3(50, 681.6-0.27, 81.6), 600)
 };
 
-inline bool intersect(const vec3 &ro, const vec3 &rd, double &t, int &id) {
+bool intersect(const vec3 &ro, const vec3 &rd, double &t, int &id) {
     double d;
     t = std::numeric_limits<double>::max();
     id = -1;
@@ -40,7 +27,7 @@ inline bool intersect(const vec3 &ro, const vec3 &rd, double &t, int &id) {
 }
 
 
-vec3 radiance(const vec3 &ro, const vec3 &rd, int depth){
+vec3 radiance(const vec3 &ro, const vec3 &rd, int depth, int E=1){
     double t;
     int id;
     if (!intersect(ro, rd, t, id)) {
@@ -61,6 +48,7 @@ vec3 radiance(const vec3 &ro, const vec3 &rd, int depth){
             return mat->getEmission();
         }
     }
+    // return mat->radiance(f, pt, rd, n, nl, depth, E, radiance);
     return mat->getEmission() + f * mat->incoming(pt, rd, n, nl, depth, radiance);
 }
 

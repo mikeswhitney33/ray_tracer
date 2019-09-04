@@ -13,6 +13,8 @@ public:
     virtual ~Shape();
     virtual double intersect(const vec3 &ro, const vec3 &rd) const = 0;
     virtual vec3 getNormal(const vec3 &rd, const vec3 &pt) const  = 0;
+    virtual vec3 getPos() const = 0;
+    virtual double getRadius() const = 0;
     Material* getMat() const;
 private:
     Material* mat;

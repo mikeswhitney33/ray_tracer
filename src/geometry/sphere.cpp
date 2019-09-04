@@ -28,3 +28,11 @@ double Sphere::intersect(const vec3 &ro, const vec3 &rd) const {
 vec3 Sphere::getNormal(const vec3 &rd, const vec3 &pt) const  {
     return (pt - position) / radius;
 }
+
+vec3 Sphere::getPos() const {
+    return position;
+}
+
+double Sphere::getRadius() const {
+    return radius;
+}
